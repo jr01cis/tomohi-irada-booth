@@ -11,7 +11,7 @@ export function buildMessage(s: Session): string {
   if (s.mode === 'challenge' && s.analysis) {
     const cat = CATEGORIES.find((c) => c.id === s.category)?.label ?? ''
     lines.push(`Challenge: ${cat} ${s.analysis.score}/${s.analysis.total}.`)
-    if (s.courses?.[0]) lines.push(`Recommended course: ${s.courses[0].name}.`)
+    if (s.courses?.[0]) lines.push(`Recommended course: ${s.courses[0].course.name}.`)
   }
   if (s.lead?.name) lines.push(`Name: ${s.lead.name}`)
   return lines.join('\n')

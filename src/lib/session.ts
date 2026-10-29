@@ -2,7 +2,7 @@ import type { Category } from '@/data/questions'
 import type { Analysis, Answer, RoundQuestion } from '@/lib/engine'
 import type { Mode } from '@/lib/queue'
 import type { Prize } from '@/lib/voucher'
-import type { Course } from '@/data/courses'
+import type { Pick } from '@/data/courses'
 
 export type Screen =
   | 'attract'
@@ -30,7 +30,7 @@ export interface Session {
   answers?: Answer[]
   elapsedMs?: number
   analysis?: Analysis
-  courses?: Course[]
+  courses?: Pick[]
   lead?: LeadData
 }
 

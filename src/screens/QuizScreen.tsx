@@ -4,8 +4,9 @@ import BorderBeam from '@/components/smoothui/border-beam'
 import SiriOrb from '@/components/smoothui/siri-orb'
 import TypewriterText from '@/components/smoothui/typewriter-text'
 import { Countdown } from '@/components/booth/Countdown'
+import { NumPad } from '@/components/booth/NumPad'
 import { CATEGORIES, type Category } from '@/data/questions'
-import { ROUND_SECONDS, buildRound, type Answer, type RoundQuestion } from '@/lib/engine'
+import { ROUND_SECONDS, buildRound, isCorrectNumber, type Answer, type RoundQuestion } from '@/lib/engine'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -15,13 +16,16 @@ interface Props {
 
 const TOTAL_MS = ROUND_SECONDS * 1000
 const FEEDBACK_MS = 650
+const NUMBER_FEEDBACK_MS = 1400
 const REVEAL_MS = 3200
 const LETTERS = ['A', 'B', 'C', 'D']
+const LEVEL_TAG = { 1: 'Warm-up', 2: 'Core', 3: 'Pro' } as const
 
 export function QuizScreen({ category, onFinish }: Props) {
   const [round] = useState(() => buildRound(category))
   const [i, setI] = useState(0)
   const [chosen, setChosen] = useState<number | null>(null)
+  const [typed, setTyped] = useState('')
   const [phase, setPhase] = useState<'ask' | 'feedback' | 'reveal'>('ask')
   const [leftMs, setLeftMs] = useState(TOTAL_MS)
 
@@ -36,7 +40,7 @@ export function QuizScreen({ category, onFinish }: Props) {
     finished.current = true
     const all = answers.current.slice()
     for (let k = all.length; k < round.length; k++) {
-      all.push({ qid: round[k].id, skill: round[k].skill, level: round[k].level, chosen: null, correct: false, ms: 0 })
+      all.push({ qid: round[k].id, skill: round[k].skill, level: round[k].level, kind: round[k].kind, chosen: null, correct: false, ms: 0 })
     }
     onFinish(round, all, TOTAL_MS - Math.max(0, clock.current.left))
   }, [onFinish, round])
@@ -72,28 +76,35 @@ export function QuizScreen({ category, onFinish }: Props) {
     }
     setI(i + 1)
     setChosen(null)
+    setTyped('')
     setPhase('ask')
     clock.current.qStart = performance.now()
     clock.current.running = true
   }, [finish, i, round.length])
 
+  const record = (chosenValue: number, correct: boolean, pauseMs: number, reveal: boolean) => {
+    const now = performance.now()
+    answers.current.push({ qid: q.id, skill: q.skill, level: q.level, kind: q.kind, chosen: chosenValue, correct, ms: Math.round(now - clock.current.qStart) })
+    setChosen(chosenValue)
+    if (reveal) clock.current.running = false
+    setPhase(reveal ? 'reveal' : 'feedback')
+    setTimeout(next, pauseMs)
+  }
+
   const choose = (opt: number) => {
     if (phase !== 'ask' || finished.current) return
-    const now = performance.now()
-    const correct = opt === q.answer
-    answers.current.push({ qid: q.id, skill: q.skill, level: q.level, chosen: opt, correct, ms: Math.round(now - clock.current.qStart) })
-    setChosen(opt)
-    if (q.reveal) {
-      clock.current.running = false
-      setPhase('reveal')
-      setTimeout(next, REVEAL_MS)
-    } else {
-      setPhase('feedback')
-      setTimeout(next, FEEDBACK_MS)
-    }
+    record(opt, opt === q.answer, q.reveal ? REVEAL_MS : FEEDBACK_MS, Boolean(q.reveal))
+  }
+
+  const submitNumber = () => {
+    if (phase !== 'ask' || finished.current || typed === '') return
+    const value = Number(typed)
+    if (Number.isNaN(value)) return
+    record(value, isCorrectNumber(q, value), NUMBER_FEEDBACK_MS, false)
   }
 
   const isAi = q.skill === 'ai'
+  const isNumber = q.kind === 'number'
   if (import.meta.env.DEV) (window as unknown as { __correct?: number }).__correct = q.answer
 
   return (
@@ -143,46 +154,57 @@ export function QuizScreen({ category, onFinish }: Props) {
                     </span>
                   ) : (
                     <span className="rounded-full bg-brand-soft px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-brand">
-                      {q.level === 1 ? 'Warm-up' : q.level === 2 ? 'Core' : 'Pro'}
+                      {isNumber ? 'Pro, type the number' : LEVEL_TAG[q.level]}
                     </span>
                   )}
                 </div>
                 <p className="text-[40px] font-semibold leading-tight tracking-tight">{q.q}</p>
-                <p className="mt-auto text-base text-body">Tap the answer. No going back.</p>
+                <p className="mt-auto text-base text-body">{isNumber ? 'Type it and tap Answer. Decimals allowed.' : 'Tap the answer. No going back.'}</p>
               </div>
             </BorderBeam>
 
-            <div className="grid grid-rows-4 gap-3">
-              {q.options.map((opt, k) => {
-                const isCorrect = k === q.answer
-                const isChosen = chosen === k
-                const show = phase !== 'ask'
-                return (
-                  <motion.button
-                    key={k}
-                    whileTap={phase === 'ask' ? { scale: 0.98 } : undefined}
-                    onClick={() => choose(k)}
-                    className={cn(
-                      'flex min-h-[96px] items-center gap-4 rounded-3xl border-2 bg-white px-6 py-3 text-left text-2xl font-medium transition-colors',
-                      !show && 'border-line',
-                      show && isCorrect && 'border-emerald-500 bg-emerald-50 text-emerald-800',
-                      show && isChosen && !isCorrect && 'border-coral bg-coral-soft text-coral',
-                      show && !isChosen && !isCorrect && 'border-line opacity-40',
-                    )}
-                  >
-                    <span
+            {isNumber ? (
+              <NumPad
+                value={typed}
+                unit={q.unit}
+                onChange={setTyped}
+                onSubmit={submitNumber}
+                disabled={phase !== 'ask'}
+                outcome={phase === 'ask' ? null : { correct: answers.current[i]?.correct ?? false, answer: q.answer }}
+              />
+            ) : (
+              <div className="grid grid-rows-4 gap-3">
+                {q.options!.map((opt, k) => {
+                  const isCorrect = k === q.answer
+                  const isChosen = chosen === k
+                  const show = phase !== 'ask'
+                  return (
+                    <motion.button
+                      key={k}
+                      whileTap={phase === 'ask' ? { scale: 0.98 } : undefined}
+                      onClick={() => choose(k)}
                       className={cn(
-                        'flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-bold',
-                        show && isCorrect ? 'bg-emerald-500 text-white' : show && isChosen ? 'bg-coral text-white' : 'bg-brand-soft text-brand',
+                        'flex min-h-[96px] items-center gap-4 rounded-3xl border-2 bg-white px-6 py-3 text-left text-2xl font-medium transition-colors',
+                        !show && 'border-line',
+                        show && isCorrect && 'border-emerald-500 bg-emerald-50 text-emerald-800',
+                        show && isChosen && !isCorrect && 'border-coral bg-coral-soft text-coral',
+                        show && !isChosen && !isCorrect && 'border-line opacity-40',
                       )}
                     >
-                      {LETTERS[k]}
-                    </span>
-                    {opt}
-                  </motion.button>
-                )
-              })}
-            </div>
+                      <span
+                        className={cn(
+                          'flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-bold',
+                          show && isCorrect ? 'bg-emerald-500 text-white' : show && isChosen ? 'bg-coral text-white' : 'bg-brand-soft text-brand',
+                        )}
+                      >
+                        {LETTERS[k]}
+                      </span>
+                      {opt}
+                    </motion.button>
+                  )
+                })}
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

@@ -41,7 +41,7 @@ function toSubmission(s: Session): Submission {
     base.pct = s.analysis.pct
     base.weak = s.analysis.weak.map((w) => SKILL_LABELS[w.skill] ?? w.skill)
     base.strong = s.analysis.strong.map((w) => SKILL_LABELS[w.skill] ?? w.skill)
-    base.recommended = s.courses?.map((c) => c.name)
+    base.recommended = s.courses?.map((p) => p.course.name)
     base.answers = s.answers?.map((a) => ({ qid: a.qid, skill: a.skill, correct: a.correct, ms: a.ms }))
   }
   return base
@@ -78,7 +78,6 @@ export default function App() {
       answers,
       elapsedMs,
       analysis,
-      courses: recommend(s.category!, analysis.weak.map((w) => w.skill)),
       prize: analysis.freeSession ? 'SESSION' : undefined,
       code: analysis.freeSession ? makeCode('SESSION') : undefined,
     }))
@@ -86,7 +85,9 @@ export default function App() {
   }, [])
 
   const onLead = (lead: LeadData) => {
-    const s = { ...session, lead }
+    /* picks wait for the form: "for my team" changes the third course */
+    const courses = session.mode === 'challenge' && session.category && session.analysis ? recommend(session.category, session.analysis, lead.audience) : undefined
+    const s = { ...session, lead, courses }
     setSession(s)
     enqueue(toSubmission(s))
     setScreen(s.mode === 'wheel' ? 'voucher' : 'result')

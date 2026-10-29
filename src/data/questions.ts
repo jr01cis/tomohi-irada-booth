@@ -1,0 +1,177 @@
+export type Category = 'marketing' | 'pm' | 'business' | 'english' | 'design'
+
+export interface Question {
+  id: string
+  cat: Category
+  skill: string
+  level: 1 | 2 | 3
+  q: string
+  options: [string, string, string, string]
+  answer: 0 | 1 | 2 | 3
+  /** AI questions only: shown for a beat after answering */
+  reveal?: string
+}
+
+export const CATEGORIES: { id: Category; label: string; tagline: string; emoji: string }[] = [
+  { id: 'marketing', label: 'Marketing', tagline: 'Ads, content, SEO, analytics', emoji: '📣' },
+  { id: 'pm', label: 'Project Management', tagline: 'Scope, risk, agile, people', emoji: '🗂️' },
+  { id: 'business', label: 'Business', tagline: 'Finance, sales, negotiation, HR', emoji: '📈' },
+  { id: 'english', label: 'Business English', tagline: 'Email, meetings, pitching', emoji: '💬' },
+  { id: 'design', label: 'Design', tagline: 'Type, color, layout, UX', emoji: '🎨' },
+]
+
+export const SKILL_LABELS: Record<string, string> = {
+  strategy: 'Strategy',
+  content: 'Content',
+  paid: 'Paid ads',
+  seo: 'SEO',
+  analytics: 'Analytics',
+  scope: 'Scope',
+  risk: 'Risk',
+  agile: 'Agile',
+  stakeholders: 'Stakeholders',
+  time: 'Planning',
+  finance: 'Finance',
+  sales: 'Sales',
+  negotiation: 'Negotiation',
+  hr: 'People & HR',
+  email: 'Email writing',
+  meetings: 'Meetings',
+  vocabulary: 'Vocabulary',
+  grammar: 'Grammar',
+  pitching: 'Pitching',
+  typography: 'Typography',
+  color: 'Color',
+  layout: 'Layout',
+  ux: 'UX',
+  tools: 'Tools',
+  ai: 'AI at work',
+}
+
+const Q = (
+  id: string,
+  cat: Category,
+  skill: string,
+  level: 1 | 2 | 3,
+  q: string,
+  options: [string, string, string, string],
+  answer: 0 | 1 | 2 | 3,
+  reveal?: string,
+): Question => ({ id, cat, skill, level, q, options, answer, reveal })
+
+export const QUESTIONS: Question[] = [
+  // Marketing
+  Q('mk01', 'marketing', 'strategy', 1, 'A "target audience" is…', ['Everyone online', 'The specific group you want to reach', 'Your competitors', 'Your employees'], 1),
+  Q('mk02', 'marketing', 'content', 1, 'Which one is a call to action?', ['Our story', 'Book your free session', 'About us', 'Founded in 2019'], 1),
+  Q('mk03', 'marketing', 'paid', 2, 'CPC stands for…', ['Cost per click', 'Cost per customer', 'Clicks per campaign', 'Cost per creative'], 0),
+  Q('mk04', 'marketing', 'seo', 2, 'What matters most for ranking on Google?', ['Repeating keywords 50 times', 'Helpful content other sites link to', 'Lots of pop-ups', 'Flashy animations'], 1),
+  Q('mk05', 'marketing', 'analytics', 2, '1,000 visits, 50 sign-ups. Conversion rate?', ['0.5%', '5%', '50%', '20%'], 1),
+  Q('mk06', 'marketing', 'strategy', 2, 'The 4 Ps: Product, Price, Place and…', ['People', 'Promotion', 'Profit', 'Process'], 1),
+  Q('mk07', 'marketing', 'content', 3, 'Which format reaches the most new people on Instagram?', ['Static posts', 'Carousels', 'Reels', 'Stories'], 2),
+  Q('mk08', 'marketing', 'paid', 3, 'High CTR, zero sales. Most likely problem?', ['The ad creative', 'The landing page', 'The budget', 'The ad schedule'], 1),
+  Q('mk09', 'marketing', 'analytics', 3, 'Which metric shows the long-term value of a customer?', ['CTR', 'CAC', 'LTV', 'CPM'], 2),
+  Q('mk10', 'marketing', 'seo', 3, 'A "backlink" is…', ['A link from another site to yours', 'A broken link', 'A link in your footer', 'A paid ad link'], 0),
+  Q('mk11', 'marketing', 'strategy', 1, 'A "lead" is…', ['A paying customer', 'Someone who showed interest', 'A competitor', 'An ad'], 1),
+  Q('mk12', 'marketing', 'ai', 2, 'Which of these can AI do today in under 5 minutes?', ['Write 30 ad variations', 'Draft a month of content', 'Summarize 500 reviews', 'All of them'], 3,
+    'All three. One prompt, 30 ad variations scored by hook strength. That is week one of The Content Creator AI Engine.'),
+  Q('mk13', 'marketing', 'ai', 2, 'GEO stands for…', ['Google Engine Optimization', 'Generative Engine Optimization', 'Geographic Email Outreach', 'Growth Experiment Output'], 1,
+    'GEO is how you get ChatGPT and Perplexity to recommend your brand when people ask. Tomohi has a course on exactly that.'),
+  Q('mk14', 'marketing', 'ai', 2, 'Can AI build a customer persona from your Instagram comments?', ['No, it needs surveys', 'Yes, in minutes', 'Only with 10,000+ comments', 'Only for big brands'], 1,
+    'Paste the comments, ask for patterns, get a persona with objections and buying triggers. Prompt Engineering, week two.'),
+  Q('mk15', 'marketing', 'ai', 3, 'An "AI agent" in marketing is…', ['A chatbot that answers FAQs', 'An AI that plans and runs multi-step tasks on its own', 'A human agency', 'An ad format'], 1,
+    'An agent can watch your ad spend, pause the losers and write the report before you wake up. Agentic AI course.'),
+  Q('mk16', 'marketing', 'ai', 1, 'Which tool turns one blog post into 10 social posts in a single prompt?', ['Excel', 'ChatGPT or Claude', 'Photoshop', 'None, it needs a human'], 1,
+    'One post in, ten platform-ready versions out, in your voice. ChatGPT AI Mastery.'),
+
+  // Project management
+  Q('pm01', 'pm', 'scope', 1, '"Scope creep" means…', ['The project finishes early', 'The work keeps growing without control', 'A very small project', 'A scope review meeting'], 1),
+  Q('pm02', 'pm', 'time', 1, 'A Gantt chart shows…', ['Costs', 'Tasks over time', 'Team mood', 'Risks'], 1),
+  Q('pm03', 'pm', 'agile', 2, 'In Scrum, a sprint usually lasts…', ['1 day', '1 to 4 weeks', '6 months', '1 year'], 1),
+  Q('pm04', 'pm', 'stakeholders', 2, 'A stakeholder is…', ['Only the client', 'Anyone affected by or influencing the project', 'Only the team', 'Only the sponsor'], 1),
+  Q('pm05', 'pm', 'risk', 2, 'The best time to identify risks is…', ['At the end', 'At the start, then continuously', 'Only when they happen', 'Never, it slows things down'], 1),
+  Q('pm06', 'pm', 'scope', 3, 'The "triple constraint" is scope, time and…', ['Quality', 'Cost', 'Risk', 'People'], 1),
+  Q('pm07', 'pm', 'agile', 3, 'Who owns the product backlog in Scrum?', ['Scrum Master', 'Product Owner', 'The developers', 'The client'], 1),
+  Q('pm08', 'pm', 'risk', 3, 'A high-impact, very unlikely risk should be…', ['Ignored', 'Monitored with a contingency plan', 'Escalated daily', 'Deleted from the register'], 1),
+  Q('pm09', 'pm', 'time', 3, 'The critical path is…', ['The riskiest task', 'The longest chain of dependent tasks', 'The cheapest route', "The client's deadline"], 1),
+  Q('pm10', 'pm', 'stakeholders', 3, 'A stakeholder with high power but low interest should be…', ['Managed closely', 'Kept satisfied', 'Ignored', 'Emailed daily'], 1),
+  Q('pm11', 'pm', 'agile', 1, 'A daily stand-up should last about…', ['15 minutes', '1 hour', '3 hours', '2 minutes'], 0),
+  Q('pm12', 'pm', 'ai', 2, 'Can AI turn a messy 2-hour meeting recording into a task list with owners and deadlines?', ['No', 'Yes, in a few minutes', 'Only in English', 'Only with a secretary'], 1,
+    'Record, transcribe, extract the actions, push them to Jira. Fully automatic. Agentic AI course.'),
+  Q('pm13', 'pm', 'ai', 2, 'From a one-page brief, AI can draft…', ['A work breakdown structure', 'Task duration estimates', 'A risk list with mitigations', 'All of them'], 3,
+    'One brief in, a full starting plan out in two minutes. You refine instead of starting from zero. Effective Project Management, AI module.'),
+  Q('pm14', 'pm', 'ai', 1, 'What is n8n?', ['A phone brand', 'A tool that connects apps and automates work, no code', 'A Gantt template', 'A CRM'], 1,
+    'Connect Jira, WhatsApp, Sheets and AI in one flow. Tomohi runs on it. n8n Workflow Automation course.'),
+  Q('pm15', 'pm', 'ai', 2, 'Can AI write your weekly status report from Jira automatically?', ['Yes', 'No', 'Only in Microsoft Project', 'Only with a consultant'], 0,
+    'Every Friday at 5 pm the report writes itself and lands in the sponsor inbox. Workflow Automation.'),
+  Q('pm16', 'pm', 'ai', 1, 'The best way to brief an AI assistant is…', ['One vague sentence', 'Role, context, task, format', 'Keywords only', 'ALL CAPS'], 1,
+    'Four lines and the output goes from generic to usable. Prompt Engineering Crash Course.'),
+
+  // Business
+  Q('bz01', 'business', 'finance', 1, 'Revenue minus costs equals…', ['Cash', 'Profit', 'Equity', 'Debt'], 1),
+  Q('bz02', 'business', 'sales', 1, 'A "cold call" is…', ['Calling an angry customer', 'Contacting someone who has not shown interest yet', 'A call in winter', 'A call to your own team'], 1),
+  Q('bz03', 'business', 'negotiation', 2, 'BATNA stands for…', ['Best Alternative To a Negotiated Agreement', 'Basic Agreement Terms and Needs', 'Budget And Time Negotiation Act', 'Buyer Attitude To Negotiation'], 0),
+  Q('bz04', 'business', 'hr', 2, 'Onboarding is…', ['Letting someone go', 'Integrating a new hire', 'A boat trip', 'A salary review'], 1),
+  Q('bz05', 'business', 'strategy', 2, 'SWOT: strengths, weaknesses, opportunities and…', ['Targets', 'Threats', 'Trends', 'Tactics'], 1),
+  Q('bz06', 'business', 'finance', 3, 'Cash-flow problems can hit a company that is…', ['Bankrupt', 'Profitable', 'Closed', 'Unregistered'], 1),
+  Q('bz07', 'business', 'sales', 3, 'The most important part of a discovery call is…', ['Pitching features', 'Asking questions and listening', 'Giving the price fast', 'Sending a brochure'], 1),
+  Q('bz08', 'business', 'negotiation', 3, 'Making the first offer in a negotiation…', ['Always loses', 'Can anchor the discussion in your favor', 'Is bad manners', 'Is only for buyers'], 1),
+  Q('bz09', 'business', 'strategy', 3, 'A "unique value proposition" answers…', ['Why customers should choose you', 'How much you pay staff', 'Where your office is', 'Who your investors are'], 0),
+  Q('bz10', 'business', 'hr', 3, 'The main purpose of a performance review is…', ['Punishment', 'Development and alignment', 'Paperwork', 'Salary cuts'], 1),
+  Q('bz11', 'business', 'finance', 1, 'A budget is…', ['A list of employees', 'A plan for income and spending', 'A tax', 'A loan'], 1),
+  Q('bz12', 'business', 'ai', 2, 'Can AI read a 40-page contract and flag the risky clauses?', ['No', 'Yes, in a couple of minutes', 'Only for lawyers', 'Only in English'], 1,
+    'Upload it, ask for risks ranked by severity, get a table. Then review with your lawyer in a fraction of the time. Claude AI course.'),
+  Q('bz13', 'business', 'ai', 2, 'With your Excel sales sheet, AI can…', ['Find the trend', 'Forecast next quarter', 'Write the summary email', 'All of them'], 3,
+    'Your spreadsheet starts answering questions. Excel AI course.'),
+  Q('bz14', 'business', 'ai', 2, 'An AI agent can qualify a WhatsApp lead and book the meeting for you.', ['True', 'False', 'Only on weekdays', 'Only with 10 staff'], 0,
+    "Tomohi's own leads are qualified by an AI agent on WhatsApp, 24/7. Agentic AI course."),
+  Q('bz15', 'business', 'ai', 1, 'Can AI draft a full business plan from a 10-line idea?', ['Yes, a solid first draft', 'No', 'Only MBA graduates can', 'Only with a $5,000 tool'], 0,
+    'Draft in 10 minutes, then your judgement makes it real. Small Business Growth Strategies, AI module.'),
+  Q('bz16', 'business', 'ai', 1, '"Prompt engineering" is…', ['Building prompts for engineers', 'Writing instructions so AI gives useful results', 'A coding language', 'An HR process'], 1,
+    'The skill that decides whether AI saves you 10 hours a week or wastes 10 minutes. Prompt Engineering.'),
+
+  // Business English
+  Q('en01', 'english', 'email', 1, 'Best opening for a formal email to a stranger:', ['Hey!', 'Dear Mr. Khalil,', 'Yo,', 'Hi there buddy,'], 1),
+  Q('en02', 'english', 'vocabulary', 1, '"Deadline" means…', ['A dead end', 'The latest time something must be done', 'A phone line', 'A meeting'], 1),
+  Q('en03', 'english', 'grammar', 2, 'Choose the correct sentence:', ["She don't work here.", "She doesn't work here.", 'She not work here.', "She doesn't works here."], 1),
+  Q('en04', 'english', 'meetings', 2, 'The polite way to interrupt in a meeting:', ['Stop talking.', 'Sorry to interrupt, may I add something?', 'Wrong.', 'Listen to me.'], 1),
+  Q('en05', 'english', 'vocabulary', 2, '"To follow up" means…', ['To walk behind someone', 'To check on something after a first contact', 'To give up', 'To copy'], 1),
+  Q('en06', 'english', 'email', 3, 'Most appropriate closing for a business email:', ['Love,', 'Kind regards,', 'Bye bye,', 'XOXO'], 1),
+  Q('en07', 'english', 'pitching', 3, 'An "elevator pitch" is…', ['A speech in an elevator', 'A 30-second summary of your idea', 'A sales brochure', 'A job interview'], 1),
+  Q('en08', 'english', 'grammar', 3, 'Choose the correct sentence:', ['We have met him yesterday.', 'We met him yesterday.', 'We meet him yesterday.', 'We was meeting him yesterday.'], 1),
+  Q('en09', 'english', 'meetings', 3, '"Let\'s table this" in US business English means…', ['Discuss it now', 'Postpone it', 'Approve it', 'Cancel it'], 1),
+  Q('en10', 'english', 'vocabulary', 3, 'ASAP means…', ['As soon as possible', 'After sales and purchases', 'A sales action plan', 'As slow as possible'], 0),
+  Q('en11', 'english', 'pitching', 2, 'The strongest way to start a presentation:', ['"Sorry, I\'m nervous"', 'A surprising fact or question', 'Reading your name', 'Apologizing for the slides'], 1),
+  Q('en12', 'english', 'ai', 1, 'Can AI turn rough Arabic notes into a polished English email?', ['Yes, in seconds', 'No', 'Only short ones', 'Only with a translator'], 0,
+    'Notes in, a professional email out, tone adjusted to the reader. Business English Communication, AI module.'),
+  Q('en13', 'english', 'ai', 2, 'For your English, AI can…', ['Correct grammar', 'Explain why it was wrong', 'Run a mock job interview out loud', 'All of them'], 3,
+    'Practice an interview with an AI that pushes back, then get feedback. Speaking & Pronunciation Fluency.'),
+  Q('en14', 'english', 'ai', 2, 'AI can rehearse a sales call with you, playing a difficult client.', ['True', 'False', 'Only by text', 'Only in movies'], 0,
+    'Voice mode, a tough client, five rounds. You walk into the real call warmed up.'),
+  Q('en15', 'english', 'ai', 1, '"Rewrite this in a formal tone" makes AI…', ['Translate it', 'Change the style, keep the meaning', 'Delete it', 'Shorten it to one word'], 1,
+    'Casual to formal, long to short, English to French: style is now one instruction. Prompt Engineering.'),
+  Q('en16', 'english', 'ai', 2, 'Can AI check if your CV matches a job description?', ['Yes, and suggest what to add', 'No', 'Only on LinkedIn', 'Only for engineers'], 0,
+    'Paste both, get a match score and the missing keywords. CV Writing and Personal Branding Crash Course.'),
+
+  // Design
+  Q('ds01', 'design', 'typography', 1, 'A clean design usually uses how many fonts?', ['1 to 2', '5 to 6', 'As many as possible', '10'], 0),
+  Q('ds02', 'design', 'color', 1, 'Which pair is complementary?', ['Blue and orange', 'Blue and green', 'Red and pink', 'Black and grey'], 0),
+  Q('ds03', 'design', 'layout', 2, '"White space" is…', ['A mistake', 'Empty space that lets the design breathe', 'Only for white backgrounds', 'A printing error'], 1),
+  Q('ds04', 'design', 'ux', 2, 'UX stands for…', ['User experience', 'Ultra extreme', 'Universal exchange', 'User exit'], 0),
+  Q('ds05', 'design', 'tools', 2, 'Which tool is built for UI design and prototyping?', ['Excel', 'Figma', 'Word', 'Outlook'], 1),
+  Q('ds06', 'design', 'typography', 3, 'A serif font has…', ['Small strokes at the ends of letters', 'No strokes at all', 'Only capitals', 'Rounded edges'], 0),
+  Q('ds07', 'design', 'color', 3, 'In branding, which color is used most for trust and calm?', ['Red', 'Blue', 'Neon yellow', 'Brown'], 1),
+  Q('ds08', 'design', 'layout', 3, 'Visual hierarchy means…', ['Everything the same size', 'Guiding the eye to what matters first', 'A company org chart', 'Using one color only'], 1),
+  Q('ds09', 'design', 'ux', 3, 'A good call-to-action button is…', ['Hidden', 'Clear, visible, action-worded', 'Grey on grey', 'Very small'], 1),
+  Q('ds10', 'design', 'tools', 3, 'Which file type keeps a logo sharp at any size?', ['JPG', 'SVG', 'GIF', 'BMP'], 1),
+  Q('ds11', 'design', 'layout', 1, 'Aligning elements to a grid helps with…', ['Consistency', 'Nothing', 'Printing only', 'Loading speed'], 0),
+  Q('ds12', 'design', 'ai', 1, 'Can AI create 10 logo concepts from a text description?', ['Yes, in minutes', 'No', 'Only sketches', 'Only for big budgets'], 0,
+    'Midjourney for the concepts, a designer refines the winner. Logo Design and Branding.'),
+  Q('ds13', 'design', 'ai', 2, 'Inside Canva today, AI can…', ['Remove backgrounds', 'Write the copy', 'Resize one design to 20 formats', 'All of them'], 3,
+    'One design, every platform size, one click. Canva AI course.'),
+  Q('ds14', 'design', 'ai', 2, 'AI can turn a hand-drawn sketch into a clickable app prototype.', ['True', 'False', 'Only on Windows', 'Only in black and white'], 0,
+    'Photo of a napkin sketch in, a working prototype out. Prototyping with Figma, AI module.'),
+  Q('ds15', 'design', 'ai', 1, 'Can AI generate a full brand palette from one photo?', ['Yes', 'No', 'Only 2 colors', 'Only with Photoshop'], 0,
+    'Upload the photo, ask for a palette with hex codes and usage rules. Graphic Design Essentials.'),
+  Q('ds16', 'design', 'ai', 2, '"Generative fill" does what?', ['Fills a form', 'Extends or replaces parts of an image with AI', 'Fills a bucket', 'Changes the font'], 1,
+    'Extend a photo, remove a person, change the sky. Photo Editing using Photoshop.'),
+]

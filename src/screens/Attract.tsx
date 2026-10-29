@@ -83,17 +83,17 @@ export function Attract({ onWheel, onChallenge, onSecret }: Props) {
           <motion.button
             whileTap={{ scale: 0.985 }}
             onClick={onChallenge}
-            className="relative flex overflow-hidden rounded-[32px] bg-[#0a2978] p-8 text-left shadow-[0_30px_80px_-30px_rgba(46,54,184,0.9)]"
+            className="relative flex overflow-hidden rounded-[32px] bg-[#050b1c] p-8 text-left shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]"
           >
             {!LITE && (
               <AuroraCurtain
                 className="absolute inset-0"
-                colors={['#66d1ff', '#fc694f', '#3887f5', '#fcc24a']}
+                colors={['#66d1ff', '#05c247', '#fc694f', '#c778b2', '#3887f5']}
                 intensity={1}
                 bands={5}
-                blur={0.5}
+                blur={0.3}
                 noise={0.7}
-                speed={0.9}
+                speed={1}
               />
             )}
             <div className="relative z-10 flex w-full flex-col justify-between">

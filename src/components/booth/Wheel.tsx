@@ -2,7 +2,7 @@ import { animate, motion, useMotionValue } from 'motion/react'
 import { useState } from 'react'
 import GooeyFilter from '@/components/smoothui/gooey-filter'
 import { cn } from '@/lib/utils'
-import { PRIZE_LABEL, WHEEL_SLICES, sliceIndexFor, spinOutcome, type Prize } from '@/lib/voucher'
+import { WHEEL_SLICES, sliceIndexFor, spinOutcome, type Prize } from '@/lib/voucher'
 
 interface Props {
   onResult: (prize: Prize) => void
@@ -16,14 +16,12 @@ const FILL: Record<Prize, string> = {
   '10': '#2e36b8',
   '20': '#3887f5',
   '30': '#fc694f',
-  FREE: '#fcc24a',
   SESSION: '#fcc24a',
 }
 const TEXT: Record<Prize, string> = {
   '10': '#ffffff',
   '20': '#ffffff',
   '30': '#ffffff',
-  FREE: '#0a2952',
   SESSION: '#0a2952',
 }
 
@@ -49,22 +47,29 @@ export function WheelFace() {
       {WHEEL_SLICES.map((p, i) => {
         const a = i * SLICE + SLICE / 2
         const [x, y] = polar(a, R * 0.64)
-        const label = p === 'FREE' ? 'FREE' : `${p}%`
         const textAngle = a > 90 && a < 270 ? a + 180 : a
-        return (
-          <text
-            key={`t${i}`}
-            x={x}
-            y={y}
-            fill={TEXT[p]}
-            fontSize={p === 'FREE' ? 11 : 15}
-            fontWeight={700}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            transform={`rotate(${textAngle} ${x} ${y})`}
-            style={{ fontFamily: 'inherit', letterSpacing: '-0.02em' }}
-          >
-            {label}
+        const common = {
+          x,
+          y,
+          fill: TEXT[p],
+          fontWeight: 700,
+          textAnchor: 'middle' as const,
+          dominantBaseline: 'middle' as const,
+          transform: `rotate(${textAngle} ${x} ${y})`,
+          style: { fontFamily: 'inherit', letterSpacing: '-0.02em' },
+        }
+        return p === 'SESSION' ? (
+          <text key={`t${i}`} {...common} fontSize={8}>
+            <tspan x={x} dy="-0.5em">
+              FREE
+            </tspan>
+            <tspan x={x} dy="1.15em">
+              SESSION
+            </tspan>
+          </text>
+        ) : (
+          <text key={`t${i}`} {...common} fontSize={15}>
+            {p}%
           </text>
         )
       })}
@@ -102,7 +107,6 @@ export function Wheel({ onResult, size = 560 }: Props) {
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      {/* pointer */}
       <div className="absolute left-1/2 -top-3 z-20 -translate-x-1/2">
         <div className="h-0 w-0 border-x-[18px] border-t-[34px] border-x-transparent border-t-white drop-shadow-[0_6px_12px_rgba(0,0,0,0.35)]" />
       </div>
@@ -119,7 +123,6 @@ export function Wheel({ onResult, size = 560 }: Props) {
         <WheelFace />
       </motion.svg>
 
-      {/* hub */}
       <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
         <GooeyFilter intensity={10} className="relative flex items-center justify-center pointer-events-none">
           {spinning &&
@@ -140,7 +143,7 @@ export function Wheel({ onResult, size = 560 }: Props) {
               (spinning || done) && 'text-body',
             )}
           >
-            {done ? '' : spinning ? '' : 'SPIN'}
+            {done || spinning ? '' : 'SPIN'}
           </motion.button>
         </GooeyFilter>
       </div>
@@ -152,7 +155,6 @@ export function Wheel({ onResult, size = 560 }: Props) {
           transition={{ duration: 2.2, repeat: Infinity }}
         />
       )}
-      <span className="sr-only">{done ? PRIZE_LABEL['10'] : ''}</span>
     </div>
   )
 }

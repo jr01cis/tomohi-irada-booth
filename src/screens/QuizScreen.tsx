@@ -97,36 +97,33 @@ export function QuizScreen({ category, onFinish }: Props) {
   if (import.meta.env.DEV) (window as unknown as { __correct?: number }).__correct = q.answer
 
   return (
-    <div className="relative flex h-full flex-col bg-[#f1f2f4] px-10 pb-10 pt-6 text-ink">
+    <div className="relative flex h-full flex-col bg-[#f1f2f4] px-12 pb-8 pt-5 text-ink">
       <div className="flex justify-center">
         <div className="rounded-full bg-brand-deep text-white shadow-[0_16px_40px_-16px_rgba(0,0,0,0.5)]">
-            <div className="flex items-center gap-4 px-5 py-2.5">
-              <Countdown leftMs={leftMs} totalMs={TOTAL_MS} size={56} className="text-white" />
-              <div className="leading-tight">
-                <p className="text-sm text-white/60">{cat.label}</p>
-                <p className="text-xl font-semibold tabular-nums">
-                  {i + 1} <span className="text-white/50">/ {round.length}</span>
-                </p>
-              </div>
-              <div className="ml-2 flex gap-1.5">
-                {round.map((r, k) => {
-                  const a = answers.current[k]
-                  return (
-                    <span
-                      key={r.id}
-                      className={cn(
-                        'h-2.5 w-2.5 rounded-full',
-                        a ? (a.correct ? 'bg-emerald-400' : 'bg-coral') : k === i ? 'bg-white' : 'bg-white/25',
-                      )}
-                    />
-                  )
-                })}
-              </div>
+          <div className="flex items-center gap-4 px-5 py-2.5">
+            <Countdown leftMs={leftMs} totalMs={TOTAL_MS} size={56} className="text-white" />
+            <div className="leading-tight">
+              <p className="text-sm text-white/60">{cat.label}</p>
+              <p className="text-xl font-semibold tabular-nums">
+                {i + 1} <span className="text-white/50">/ {round.length}</span>
+              </p>
             </div>
+            <div className="ml-2 flex gap-1.5">
+              {round.map((r, k) => {
+                const a = answers.current[k]
+                return (
+                  <span
+                    key={r.id}
+                    className={cn('h-2.5 w-2.5 rounded-full', a ? (a.correct ? 'bg-emerald-400' : 'bg-coral') : k === i ? 'bg-white' : 'bg-white/25')}
+                  />
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="mt-8 flex flex-1 flex-col justify-center pb-24">
+      <div className="mt-5 flex flex-1 flex-col justify-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={q.id}
@@ -134,14 +131,14 @@ export function QuizScreen({ category, onFinish }: Props) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -60 }}
             transition={{ duration: 0.28, ease: [0.2, 0.8, 0.2, 1] }}
-            className="flex flex-col gap-6"
+            className="grid grid-cols-[1.05fr_1fr] gap-6"
           >
-            <BorderBeam active={phase === 'ask'} colorFrom={isAi ? '#fc694f' : '#2e36b8'} colorTo="#ffffff" duration={4} size={160} borderWidth={2} radius={28}>
-              <div className="rounded-[28px] bg-white p-8">
-                <div className="mb-4 flex items-center gap-3">
+            <BorderBeam active={phase === 'ask'} colorFrom={isAi ? '#fc694f' : '#2e36b8'} colorTo="#ffffff" duration={4} size={160} borderWidth={2} radius={28} className="h-full">
+              <div className="flex h-full min-h-[440px] flex-col rounded-[28px] bg-white p-8">
+                <div className="mb-5 flex items-center gap-3">
                   {isAi ? (
                     <span className="inline-flex items-center gap-2 rounded-full bg-coral-soft px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-coral">
-                      <SiriOrb size="22px" state="thinking" colors={{ bg: '#ffefea', c1: '#fc694f', c2: '#2e36b8', c3: '#fcc24a', c4: '#3887f5' }} />
+                      <SiriOrb size="22px" state="thinking" colors={{ bg: '#fff0eb', c1: '#fc694f', c2: '#2e36b8', c3: '#fcc24a', c4: '#3887f5' }} />
                       AI question
                     </span>
                   ) : (
@@ -150,11 +147,12 @@ export function QuizScreen({ category, onFinish }: Props) {
                     </span>
                   )}
                 </div>
-                <p className="min-h-[2.4em] text-[38px] font-semibold leading-tight tracking-tight">{q.q}</p>
+                <p className="text-[40px] font-semibold leading-tight tracking-tight">{q.q}</p>
+                <p className="mt-auto text-base text-body">Tap the answer. No going back.</p>
               </div>
             </BorderBeam>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-rows-4 gap-3">
               {q.options.map((opt, k) => {
                 const isCorrect = k === q.answer
                 const isChosen = chosen === k
@@ -162,10 +160,10 @@ export function QuizScreen({ category, onFinish }: Props) {
                 return (
                   <motion.button
                     key={k}
-                    whileTap={phase === 'ask' ? { scale: 0.97 } : undefined}
+                    whileTap={phase === 'ask' ? { scale: 0.98 } : undefined}
                     onClick={() => choose(k)}
                     className={cn(
-                      'flex min-h-28 items-center gap-4 rounded-3xl border-2 bg-white px-6 py-4 text-left text-2xl font-medium transition-colors',
+                      'flex min-h-[96px] items-center gap-4 rounded-3xl border-2 bg-white px-6 py-3 text-left text-2xl font-medium transition-colors',
                       !show && 'border-line',
                       show && isCorrect && 'border-emerald-500 bg-emerald-50 text-emerald-800',
                       show && isChosen && !isCorrect && 'border-coral bg-coral-soft text-coral',
@@ -196,7 +194,7 @@ export function QuizScreen({ category, onFinish }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={{ type: 'spring', bounce: 0.25, duration: 0.6 }}
-            className="absolute inset-x-10 bottom-10 z-30 flex items-center gap-6 rounded-[28px] bg-brand-deep p-7 text-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
+            className="absolute inset-x-12 bottom-8 z-30 flex items-center gap-6 rounded-[28px] bg-brand-deep p-7 text-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
           >
             <SiriOrb size="88px" state="streaming" colors={{ bg: '#0a2952', c1: '#fc694f', c2: '#2e36b8', c3: '#fcc24a', c4: '#66d1ff' }} />
             <div>

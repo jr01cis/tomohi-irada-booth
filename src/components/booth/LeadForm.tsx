@@ -21,7 +21,8 @@ function normalizePhone(raw: string): string | null {
 }
 
 const field =
-  'w-full rounded-2xl border-2 border-line bg-white px-5 text-2xl text-ink outline-none transition focus:border-brand min-h-18 placeholder:text-body/50'
+  'w-full rounded-2xl border-2 border-line bg-white px-5 text-2xl text-ink outline-none transition focus:border-brand min-h-16 placeholder:text-body/50'
+const label = 'text-sm font-semibold uppercase tracking-wider text-body'
 
 export function LeadForm({ cta, onSubmit }: Props) {
   const [name, setName] = useState('')
@@ -41,10 +42,10 @@ export function LeadForm({ cta, onSubmit }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-[1fr_1.25fr] gap-8">
+      <div className="flex flex-col gap-5">
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-semibold uppercase tracking-wider text-body">Your name</span>
+          <span className={label}>Your name</span>
           <input
             className={cn(field, touched && !nameOk && 'border-coral')}
             value={name}
@@ -56,7 +57,7 @@ export function LeadForm({ cta, onSubmit }: Props) {
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-semibold uppercase tracking-wider text-body">WhatsApp number</span>
+          <span className={label}>WhatsApp number</span>
           <div className="relative">
             <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-2xl text-body">+961</span>
             <input
@@ -70,10 +71,36 @@ export function LeadForm({ cta, onSubmit }: Props) {
             />
           </div>
         </label>
+        <div className="flex flex-col gap-2">
+          <span className={label}>This is</span>
+          <div className="grid grid-cols-2 gap-3">
+            {AUDIENCE.map((a) => {
+              const on = audience === a.id
+              return (
+                <motion.button
+                  key={a.id}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setAudience(a.id)}
+                  className={cn(
+                    'flex min-h-16 flex-col items-start justify-center rounded-2xl border-2 px-4 text-left transition-colors',
+                    on ? 'border-brand bg-brand-soft' : 'border-line bg-white',
+                  )}
+                >
+                  <span className={cn('text-lg font-semibold', on ? 'text-brand' : 'text-ink')}>{a.label}</span>
+                  <span className="text-xs text-body">{a.hint}</span>
+                </motion.button>
+              )
+            })}
+          </div>
+        </div>
+        <BigButton size="xl" variant="primary" onClick={submit} disabled={touched && !valid} className="mt-1 w-full">
+          {cta}
+        </BigButton>
+        {touched && !valid && <p className="text-base text-coral">Name, a Lebanese number, industry and who it is for, then we are good.</p>}
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-semibold uppercase tracking-wider text-body">Industry</span>
+        <span className={label}>Industry</span>
         <div className="flex flex-wrap gap-2.5">
           {INDUSTRIES.map((it) => {
             const on = industry === it
@@ -93,36 +120,6 @@ export function LeadForm({ cta, onSubmit }: Props) {
           })}
         </div>
       </div>
-
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-semibold uppercase tracking-wider text-body">This is</span>
-        <div className="grid grid-cols-2 gap-4">
-          {AUDIENCE.map((a) => {
-            const on = audience === a.id
-            return (
-              <motion.button
-                key={a.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setAudience(a.id)}
-                className={cn(
-                  'flex min-h-20 flex-col items-start justify-center rounded-2xl border-2 px-5 text-left transition-colors',
-                  on ? 'border-brand bg-brand-soft' : 'border-line bg-white',
-                )}
-              >
-                <span className={cn('text-xl font-semibold', on ? 'text-brand' : 'text-ink')}>{a.label}</span>
-                <span className="text-sm text-body">{a.hint}</span>
-              </motion.button>
-            )
-          })}
-        </div>
-      </div>
-
-      <BigButton size="xl" variant="primary" onClick={submit} disabled={touched && !valid} className="mt-2 w-full">
-        {cta}
-      </BigButton>
-      {touched && !valid && (
-        <p className="text-center text-base text-coral">Name, a Lebanese number, industry and who it is for, then we are good.</p>
-      )}
     </div>
   )
 }

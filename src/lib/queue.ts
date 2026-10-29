@@ -85,7 +85,8 @@ async function post(s: Submission): Promise<boolean> {
       body: JSON.stringify(s),
       signal: ctrl.signal,
     })
-    return res.ok
+    /* a 4xx is the server rejecting this payload for good; retrying it forever would only block the queue */
+    return res.ok || (res.status >= 400 && res.status < 500)
   } catch {
     return false
   } finally {

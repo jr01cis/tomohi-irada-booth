@@ -19,7 +19,7 @@ export function Logo({ tone = 'light', className, onSecret }: Props) {
       onSecret()
     }
   }
-  const file = tone === 'light' ? 'logo-white-wordmark.png' : 'logo-blue-wordmark.png'
+  const file = tone === 'light' ? 'logo-full-white.png' : 'logo-full-blue.png'
   return (
     <img
       src={`${import.meta.env.BASE_URL}brand/${file}`}

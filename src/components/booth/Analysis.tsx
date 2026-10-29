@@ -23,6 +23,7 @@ const WORD_MS = 42
 const label = (s: string) => SKILL_LABELS[s] ?? s
 const list = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`)
 
+/** Reasoning trace, streamed verdict and the skill map. Course picks live in `CoursePicks` so screens can place them. */
 export function Analysis({ name, category, analysis, courses, elapsedMs, onDone }: Props) {
   const cat = CATEGORIES.find((c) => c.id === category)!
   const first = name.split(' ')[0]
@@ -78,7 +79,7 @@ export function Analysis({ name, category, analysis, courses, elapsedMs, onDone 
   }, [shownSteps, shownWords, steps.length, words.length, onDone])
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <div className="flex items-center gap-4">
         <SiriOrb size="64px" state={finished ? 'idle' : 'thinking'} colors={{ bg: '#e9ebfa', c1: '#2e36b8', c2: '#fc694f', c3: '#3887f5', c4: '#fcc24a' }} />
         <div>
@@ -97,58 +98,58 @@ export function Analysis({ name, category, analysis, courses, elapsedMs, onDone 
         </ul>
       </AIReasoning>
 
-      {!reasoning && (
-        <AIResponse text={words.slice(0, shownWords).join(' ')} isStreaming={streaming} className="text-xl leading-relaxed text-ink" />
-      )}
+      {!reasoning && <AIResponse text={words.slice(0, shownWords).join(' ')} isStreaming={streaming} className="text-xl leading-relaxed text-ink" />}
 
       {finished && (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-[1fr_1.2fr] gap-6">
-          <div className="rounded-3xl bg-white p-5">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-body">Skill map</p>
-            <ul className="space-y-3">
-              {analysis.bySkill.map((s, i) => (
-                <li key={s.skill}>
-                  <div className="mb-1 flex justify-between text-base">
-                    <span className="font-medium text-ink">{label(s.skill)}</span>
-                    <span className="tabular-nums text-body">
-                      {s.correct}/{s.asked}
-                    </span>
-                  </div>
-                  <div className="h-2.5 overflow-hidden rounded-full bg-line">
-                    <motion.div
-                      className={cn('h-full rounded-full', s.pct === 100 ? 'bg-brand' : s.pct === 0 ? 'bg-coral' : 'bg-brand-light')}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.max(6, s.pct)}%` }}
-                      transition={{ delay: 0.1 + i * 0.08, duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <p className="text-sm font-semibold uppercase tracking-widest text-coral">Recommended for you</p>
-            {courses.map((c, i) => (
-              <motion.div
-                key={c.name}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + i * 0.12 }}
-                className={cn('rounded-3xl border-2 p-5', i === 0 ? 'border-brand bg-brand text-white' : 'border-line bg-white text-ink')}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-xl font-semibold leading-tight">{c.name}</p>
-                  {i === 0 && <span className="shrink-0 rounded-full bg-coral px-3 py-1 text-xs font-bold uppercase tracking-wider">Start here</span>}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl bg-white p-5">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-body">Skill map</p>
+          <ul className="grid grid-cols-2 gap-x-6 gap-y-3">
+            {analysis.bySkill.map((s, i) => (
+              <li key={s.skill}>
+                <div className="mb-1 flex justify-between text-base">
+                  <span className="font-medium text-ink">{label(s.skill)}</span>
+                  <span className="tabular-nums text-body">
+                    {s.correct}/{s.asked}
+                  </span>
                 </div>
-                <p className={cn('mt-1 text-base', i === 0 ? 'text-white/80' : 'text-body')}>
-                  {c.blurb}. {c.sessions} sessions with a mentor.
-                </p>
-              </motion.div>
+                <div className="h-2.5 overflow-hidden rounded-full bg-line">
+                  <motion.div
+                    className={cn('h-full rounded-full', s.pct === 100 ? 'bg-brand' : s.pct === 0 ? 'bg-coral' : 'bg-brand-light')}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.max(6, s.pct)}%` }}
+                    transition={{ delay: 0.1 + i * 0.08, duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
+                  />
+                </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </motion.div>
       )}
+    </div>
+  )
+}
+
+export function CoursePicks({ courses }: { courses: Course[] }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-sm font-semibold uppercase tracking-widest text-coral">Recommended for you</p>
+      {courses.map((c, i) => (
+        <motion.div
+          key={c.name}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 + i * 0.12 }}
+          className={cn('rounded-3xl border-2 p-5', i === 0 ? 'border-brand bg-brand text-white' : 'border-line bg-white text-ink')}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-xl font-semibold leading-tight">{c.name}</p>
+            {i === 0 && <span className="shrink-0 rounded-full bg-coral px-3 py-1 text-xs font-bold uppercase tracking-wider">Start here</span>}
+          </div>
+          <p className={cn('mt-1 text-base', i === 0 ? 'text-white/80' : 'text-body')}>
+            {c.blurb}. {c.sessions} sessions with a mentor.
+          </p>
+        </motion.div>
+      ))}
     </div>
   )
 }

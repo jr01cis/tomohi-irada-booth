@@ -6,11 +6,10 @@ import { analyze, type Answer, type RoundQuestion } from '@/lib/engine'
 import { deviceId, enqueue, newId, startAutoFlush, type Submission } from '@/lib/queue'
 import { LITE, type LeadData, type Screen, type Session } from '@/lib/session'
 import { useIdle } from '@/lib/useIdle'
-import { PRIZE_LABEL, VALID_UNTIL, makeCode, type Prize } from '@/lib/voucher'
+import { PRIZE_HEADLINE, VALID_UNTIL, makeCode, type Prize } from '@/lib/voucher'
 import { AdminPanel } from '@/screens/AdminPanel'
 import { Attract } from '@/screens/Attract'
 import { CategoryScreen } from '@/screens/CategoryScreen'
-import { Choose } from '@/screens/Choose'
 import { FormScreen } from '@/screens/FormScreen'
 import { QuizScreen } from '@/screens/QuizScreen'
 import { ResultScreen } from '@/screens/ResultScreen'
@@ -31,7 +30,7 @@ function toSubmission(s: Session): Submission {
     phone: lead.phone,
     industry: lead.industry,
     audience: lead.audience,
-    prize: s.prize ? PRIZE_LABEL[s.prize] : undefined,
+    prize: s.prize ? PRIZE_HEADLINE[s.prize] : undefined,
     voucher: s.code,
     validUntil: s.code ? VALID_UNTIL : undefined,
   }
@@ -96,16 +95,25 @@ export default function App() {
   let content: React.ReactNode
   switch (screen) {
     case 'attract':
-      content = <Attract onStart={() => setScreen('choose')} onSecret={() => setAdmin(true)} />
-      break
-    case 'choose':
-      content = <Choose onWheel={() => setScreen('wheel')} onChallenge={() => setScreen('category')} onBack={reset} />
+      content = (
+        <Attract
+          onWheel={() => {
+            setSession({ mode: 'wheel' })
+            setScreen('wheel')
+          }}
+          onChallenge={() => {
+            setSession({ mode: 'challenge' })
+            setScreen('category')
+          }}
+          onSecret={() => setAdmin(true)}
+        />
+      )
       break
     case 'wheel':
-      content = <WheelScreen onPrize={onPrize} onBack={() => setScreen('choose')} />
+      content = <WheelScreen onPrize={onPrize} onBack={reset} />
       break
     case 'category':
-      content = <CategoryScreen onPick={onCategory} onBack={() => setScreen('choose')} />
+      content = <CategoryScreen onPick={onCategory} onBack={reset} />
       break
     case 'quiz':
       content = <QuizScreen key={session.category} category={session.category!} onFinish={onQuizFinish} />
@@ -117,7 +125,7 @@ export default function App() {
       content =
         session.mode === 'wheel' ? (
           <FormScreen
-            title={`Claim your ${session.prize ? PRIZE_LABEL[session.prize].toLowerCase() : 'prize'}`}
+            title={`Claim your ${session.prize ? PRIZE_HEADLINE[session.prize].toLowerCase() : 'prize'}`}
             subtitle="We save the voucher under your WhatsApp number so nobody else can use it."
             cta="Get my voucher"
             onSubmit={onLead}
@@ -125,7 +133,7 @@ export default function App() {
         ) : (
           <FormScreen
             title="Unlock your analysis"
-            subtitle="Your skill map, where to improve and the course that fixes it. We send it to your WhatsApp too."
+            subtitle="Your skill map, where to improve and the course that fixes it. Sent to your WhatsApp too."
             cta="Show my analysis"
             onSubmit={onLead}
           />

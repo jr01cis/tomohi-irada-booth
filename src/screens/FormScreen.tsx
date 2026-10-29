@@ -11,13 +11,15 @@ interface Props {
 
 export function FormScreen({ title, subtitle, cta, onSubmit }: Props) {
   return (
-    <div className="flex h-full flex-col bg-[#f1f2f4] px-10 py-8 text-ink">
-      <Logo tone="dark" className="h-10" />
-      <div className="mt-6">
-        <h2 className="text-5xl font-bold tracking-tight">{title}</h2>
-        <p className="mt-2 text-xl text-body">{subtitle}</p>
+    <div className="flex h-full flex-col bg-[#f1f2f4] px-12 py-7 text-ink">
+      <div className="flex items-end justify-between gap-8">
+        <div>
+          <Logo tone="dark" className="h-10" />
+          <h2 className="mt-4 text-5xl font-bold tracking-tight">{title}</h2>
+        </div>
+        <p className="max-w-[480px] text-right text-lg text-body">{subtitle}</p>
       </div>
-      <div className="mt-8">
+      <div className="mt-6">
         <LeadForm cta={cta} onSubmit={onSubmit} />
       </div>
     </div>

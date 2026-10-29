@@ -6,7 +6,6 @@ import type { Course } from '@/data/courses'
 
 export type Screen =
   | 'attract'
-  | 'choose'
   | 'wheel'
   | 'category'
   | 'quiz'

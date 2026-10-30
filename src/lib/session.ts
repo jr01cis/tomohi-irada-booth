@@ -12,6 +12,7 @@ export type Screen =
   | 'score'
   | 'form'
   | 'result'
+  | 'reward'
   | 'voucher'
 
 export interface LeadData {

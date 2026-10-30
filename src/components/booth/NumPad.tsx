@@ -1,4 +1,5 @@
 import { motion } from 'motion/react'
+import { sfx } from '@/lib/sound'
 import { cn } from '@/lib/utils'
 import { BigButton } from './BigButton'
 
@@ -17,6 +18,7 @@ const KEYS = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '.', '0', '⌫']
 export function NumPad({ value, unit, onChange, onSubmit, disabled, outcome }: Props) {
   const press = (k: string) => {
     if (disabled) return
+    sfx.play('key')
     if (k === '⌫') return onChange(value.slice(0, -1))
     if (k === '.' && (value.includes('.') || value === '')) return
     if (value.length >= 8) return

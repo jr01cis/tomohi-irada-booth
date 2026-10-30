@@ -1,6 +1,7 @@
 import { motion } from 'motion/react'
 import { Logo } from '@/components/booth/Logo'
 import { CATEGORIES, type Category } from '@/data/questions'
+import { sfx } from '@/lib/sound'
 
 interface Props {
   onPick: (cat: Category) => void
@@ -30,7 +31,10 @@ export function CategoryScreen({ onPick, onBack }: Props) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 * i, duration: 0.45, ease: [0.2, 0.8, 0.2, 1] }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => onPick(c.id)}
+            onClick={() => {
+              sfx.play('tap')
+              onPick(c.id)
+            }}
             className="flex items-center gap-5 rounded-[28px] bg-white p-7 text-left text-ink"
           >
             <span className="text-6xl">{c.emoji}</span>
@@ -41,7 +45,7 @@ export function CategoryScreen({ onPick, onBack }: Props) {
           </motion.button>
         ))}
         <div className="flex items-center justify-center rounded-[28px] border-2 border-dashed border-white/25 p-7 text-center text-xl text-white/60">
-          Score 70% or more and your first session is free.
+          Everyone gets a free demo. 8/10 adds 10% off, 9/10 adds 20%, 10/10 adds 30%.
         </div>
       </div>
     </div>

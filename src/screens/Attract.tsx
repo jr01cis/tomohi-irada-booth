@@ -1,12 +1,41 @@
+import { Maximize, Minimize, Volume2, VolumeX } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import AuroraCurtain from '@/components/smoothui/aurora-curtain'
 import GravityLetters from '@/components/smoothui/gravity-letters'
 import { Logo } from '@/components/booth/Logo'
 import { WheelFace } from '@/components/booth/Wheel'
+import { keepFullscreen, useFullscreen } from '@/lib/fullscreen'
 import { LITE } from '@/lib/session'
+import { sfx } from '@/lib/sound'
 
-const PRIZES = ['10% off a full course', '20% off a full course', '30% off a full course', 'a free session']
+const PRIZES = ['10% off a full course', '20% off a full course', '30% off a full course', 'a free session', 'a free demo']
+
+function Controls() {
+  const fs = useFullscreen()
+  const [muted, setMuted] = useState(sfx.isMuted())
+  const btn = 'flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white/80 backdrop-blur'
+  return (
+    <div className="flex items-center gap-2" onPointerUp={(e) => e.stopPropagation()}>
+      <button
+        aria-label={muted ? 'Sound on' : 'Sound off'}
+        className={btn}
+        onClick={() => {
+          sfx.setMuted(!muted)
+          setMuted(!muted)
+          if (muted) sfx.play('blip')
+        }}
+      >
+        {muted ? <VolumeX size={22} /> : <Volume2 size={22} />}
+      </button>
+      {fs.available && (
+        <button aria-label={fs.full ? 'Exit full screen' : 'Full screen'} className={btn} onClick={fs.toggle}>
+          {fs.full ? <Minimize size={22} /> : <Maximize size={22} />}
+        </button>
+      )}
+    </div>
+  )
+}
 
 interface Props {
   onWheel: () => void
@@ -29,7 +58,10 @@ export function Attract({ onWheel, onChallenge, onSecret }: Props) {
       <div className="relative z-10 flex h-full flex-col px-12 py-8">
         <div className="flex items-center justify-between">
           <Logo tone="light" className="h-14" onSecret={onSecret} />
-          <p className="text-lg font-medium text-white/60">Tomohi at Irada</p>
+          <div className="flex items-center gap-5">
+            <p className="text-lg font-medium text-white/60">Tomohi at Irada</p>
+            <Controls />
+          </div>
         </div>
 
         <div className="mt-6 flex items-end justify-between gap-8">
@@ -58,7 +90,11 @@ export function Attract({ onWheel, onChallenge, onSecret }: Props) {
         <div className="mt-7 grid flex-1 grid-cols-2 gap-7">
           <motion.button
             whileTap={{ scale: 0.985 }}
-            onClick={onWheel}
+            onClick={() => {
+              keepFullscreen()
+              sfx.play('tap')
+              onWheel()
+            }}
             className="relative flex overflow-hidden rounded-[32px] bg-gradient-to-br from-coral to-[#ff9a7a] p-8 text-left shadow-[0_30px_80px_-30px_rgba(252,105,79,0.8)]"
           >
             <div className="relative z-10 flex flex-col justify-between">
@@ -82,7 +118,11 @@ export function Attract({ onWheel, onChallenge, onSecret }: Props) {
 
           <motion.button
             whileTap={{ scale: 0.985 }}
-            onClick={onChallenge}
+            onClick={() => {
+              keepFullscreen()
+              sfx.play('tap')
+              onChallenge()
+            }}
             className="relative flex overflow-hidden rounded-[32px] bg-[#050b1c] p-8 text-left shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]"
           >
             {!LITE && (
@@ -104,7 +144,7 @@ export function Attract({ onWheel, onChallenge, onSecret }: Props) {
               <span>
                 <span className="block text-5xl font-bold leading-tight">Take the challenge</span>
                 <span className="mt-3 block max-w-[380px] text-lg text-white/90">
-                  10 questions in your field, 3 of them about what AI can do today. Your skill map, a course pick, and a free session at 70%.
+                  10 questions in your field, 3 of them about what AI can do today. Everyone gets a free demo, and up to 30% off for a perfect round.
                 </span>
               </span>
             </div>

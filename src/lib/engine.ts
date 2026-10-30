@@ -3,7 +3,6 @@ import { QUESTIONS, type Category, type QKind, type Question } from '@/data/ques
 export const ROUND_SIZE = 10
 export const AI_PER_ROUND = 3
 export const ROUND_SECONDS = 60
-export const FREE_SESSION_PCT = 70
 
 export type RoundQuestion = Question
 
@@ -12,7 +11,7 @@ export interface Answer {
   skill: string
   level: number
   kind: QKind
-  /** mcq: option index. number: the typed value. null when time ran out. */
+  /** mcq: option index. number: the typed value. null = not reached before the bell. */
   chosen: number | null
   correct: boolean
   ms: number
@@ -23,19 +22,26 @@ export interface SkillStat {
   asked: number
   correct: number
   pct: number
-  /** points lost and points at stake, weighted by level */
+  /** points lost and points at stake on answered questions, weighted by level */
   lost: number
   max: number
 }
 
 export interface Analysis {
+  /** right answers out of the whole round: drives the reward */
   score: number
   total: number
   pct: number
-  freeSession: boolean
-  /** 1 under 40%, 2 up to 79%, 3 from 80% */
+  answered: number
+  /** questions the bell cut off: neither right nor wrong */
+  missed: number
+  /** right answers out of answered ones: drives the verdict and course level */
+  accuracy: number
+  /** 1 under 40%, 2 up to 79%, 3 from 80%, on accuracy */
   tier: 1 | 2 | 3
   bySkill: SkillStat[]
+  /** skills that only had unanswered questions */
+  notReached: string[]
   weak: SkillStat[]
   strong: SkillStat[]
   aiCorrect: number
@@ -107,11 +113,13 @@ export function isCorrectNumber(q: Question, typed: number): boolean {
 
 export function analyze(answers: Answer[]): Analysis {
   const total = answers.length
-  const score = answers.filter((a) => a.correct).length
-  const pct = total ? Math.round((score / total) * 100) : 0
+  const done = answers.filter((a) => a.chosen !== null)
+  const score = done.filter((a) => a.correct).length
+  const answered = done.length
+  const accuracy = answered ? Math.round((score / answered) * 100) : 0
 
   const map = new Map<string, SkillStat>()
-  for (const a of answers) {
+  for (const a of done) {
     const s = map.get(a.skill) ?? { skill: a.skill, asked: 0, correct: 0, pct: 0, lost: 0, max: 0 }
     s.asked += 1
     s.max += a.level
@@ -120,6 +128,7 @@ export function analyze(answers: Answer[]): Analysis {
     map.set(a.skill, s)
   }
   const bySkill = [...map.values()].map((s) => ({ ...s, pct: Math.round((s.correct / s.asked) * 100) }))
+  const notReached = [...new Set(answers.filter((a) => a.chosen === null).map((a) => a.skill))].filter((s) => !map.has(s))
   const weak = bySkill
     .filter((s) => s.lost > 0)
     .sort((a, b) => b.lost - a.lost || a.pct - b.pct)
@@ -129,19 +138,21 @@ export function analyze(answers: Answer[]): Analysis {
     .sort((a, b) => b.max - a.max)
     .slice(0, 2)
   const aiStats = bySkill.find((s) => s.skill === 'ai')
-  const answered = answers.filter((a) => a.chosen !== null)
 
   return {
     score,
     total,
-    pct,
-    freeSession: pct >= FREE_SESSION_PCT,
-    tier: pct < 40 ? 1 : pct < 80 ? 2 : 3,
+    pct: total ? Math.round((score / total) * 100) : 0,
+    answered,
+    missed: total - answered,
+    accuracy,
+    tier: accuracy < 40 ? 1 : accuracy < 80 ? 2 : 3,
     bySkill,
+    notReached,
     weak,
     strong,
     aiCorrect: aiStats?.correct ?? 0,
     aiAsked: aiStats?.asked ?? 0,
-    avgMs: answered.length ? Math.round(answered.reduce((s, a) => s + a.ms, 0) / answered.length) : 0,
+    avgMs: answered ? Math.round(done.reduce((s, a) => s + a.ms, 0) / answered) : 0,
   }
 }

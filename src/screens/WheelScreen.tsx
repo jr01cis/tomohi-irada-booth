@@ -4,20 +4,22 @@ import PriceFlow from '@/components/smoothui/price-flow'
 import { BigButton } from '@/components/booth/BigButton'
 import { Logo } from '@/components/booth/Logo'
 import { Wheel } from '@/components/booth/Wheel'
-import { OUTCOMES, PRIZE_HEADLINE, type Prize } from '@/lib/voucher'
+import { sfx } from '@/lib/sound'
+import { OUTCOMES, PRIZE_HEADLINE, isBigPrize, type WheelPrize } from '@/lib/voucher'
 
 interface Props {
-  onPrize: (prize: Prize) => void
+  onPrize: (prize: WheelPrize) => void
   onBack: () => void
 }
 
-const DOT: Record<Prize, string> = { '10': 'bg-brand', '20': 'bg-[#3887f5]', '30': 'bg-coral', SESSION: 'bg-[#fcc24a]' }
+const DOT: Record<WheelPrize, string> = { '10': 'bg-brand', '20': 'bg-[#3887f5]', '30': 'bg-coral', SESSION: 'bg-[#fcc24a]' }
 
 export function WheelScreen({ onPrize, onBack }: Props) {
-  const [prize, setPrize] = useState<Prize | null>(null)
+  const [prize, setPrize] = useState<WheelPrize | null>(null)
   const [shown, setShown] = useState(0)
 
-  const handle = (p: Prize) => {
+  const handle = (p: WheelPrize) => {
+    sfx.play(isBigPrize(p) ? 'bigPrize' : 'prize')
     setPrize(p)
     if (p !== 'SESSION') setTimeout(() => setShown(Number(p)), 350)
   }

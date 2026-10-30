@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
 import QRCode from 'react-qr-code'
 import type { Session } from '@/lib/session'
+import { sfx } from '@/lib/sound'
 import { cn } from '@/lib/utils'
 import { waLink } from '@/lib/whatsapp'
 import { BigButton } from './BigButton'
@@ -24,7 +25,15 @@ export function WhatsAppShare({ session, tone = 'dark', className }: Props) {
   const dark = tone === 'dark'
   return (
     <div className={cn('flex flex-col gap-4', className)}>
-      <BigButton size="lg" variant="coral" onClick={() => setOpen((v) => !v)} className="w-full">
+      <BigButton
+        size="lg"
+        variant="coral"
+        onClick={() => {
+          if (!open) sfx.play('blip')
+          setOpen((v) => !v)
+        }}
+        className="w-full"
+      >
         <WaIcon />
         {open ? 'Hide the QR code' : 'Send it to my WhatsApp'}
       </BigButton>

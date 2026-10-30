@@ -1,5 +1,6 @@
 import { motion, type HTMLMotionProps } from 'motion/react'
 import type { ReactNode } from 'react'
+import { sfx } from '@/lib/sound'
 import { cn } from '@/lib/utils'
 
 type Variant = 'primary' | 'coral' | 'light' | 'ghost' | 'dark'
@@ -25,9 +26,13 @@ const sizes: Record<Size, string> = {
   xl: 'min-h-24 px-10 text-2xl rounded-[2rem]',
 }
 
-export function BigButton({ variant = 'primary', size = 'lg', className, children, ...rest }: Props) {
+export function BigButton({ variant = 'primary', size = 'lg', className, children, onPointerDown, ...rest }: Props) {
   return (
     <motion.button
+      onPointerDown={(e) => {
+        sfx.play('tap')
+        onPointerDown?.(e)
+      }}
       whileTap={{ scale: 0.96 }}
       transition={{ type: 'spring', bounce: 0.3, duration: 0.3 }}
       className={cn(

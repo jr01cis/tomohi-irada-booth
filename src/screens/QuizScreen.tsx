@@ -7,6 +7,7 @@ import { Countdown } from '@/components/booth/Countdown'
 import { NumPad } from '@/components/booth/NumPad'
 import { CATEGORIES, type Category } from '@/data/questions'
 import { ROUND_SECONDS, buildRound, isCorrectNumber, type Answer, type RoundQuestion } from '@/lib/engine'
+import { sfx } from '@/lib/sound'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -48,6 +49,7 @@ export function QuizScreen({ category, onFinish }: Props) {
   useEffect(() => {
     let raf = 0
     let shownTenth = -1
+    let lastSec = ROUND_SECONDS
     clock.current.last = performance.now()
     clock.current.qStart = performance.now()
     const tick = (now: number) => {
@@ -59,7 +61,13 @@ export function QuizScreen({ category, onFinish }: Props) {
         shownTenth = tenth
         setLeftMs(Math.max(0, c.left))
       }
+      const sec = Math.ceil(c.left / 1000)
+      if (sec !== lastSec && sec > 0) {
+        lastSec = sec
+        if (c.running) sfx.play(sec <= 3 ? 'beep' : sec <= 10 ? 'tickHot' : 'tick')
+      }
       if (c.left <= 0) {
+        if (!finished.current) sfx.play('timeUp')
         finish()
         return
       }
@@ -86,7 +94,11 @@ export function QuizScreen({ category, onFinish }: Props) {
     const now = performance.now()
     answers.current.push({ qid: q.id, skill: q.skill, level: q.level, kind: q.kind, chosen: chosenValue, correct, ms: Math.round(now - clock.current.qStart) })
     setChosen(chosenValue)
-    if (reveal) clock.current.running = false
+    sfx.play(correct ? 'correct' : 'wrong')
+    if (reveal) {
+      clock.current.running = false
+      setTimeout(() => sfx.play('reveal'), 450)
+    }
     setPhase(reveal ? 'reveal' : 'feedback')
     setTimeout(next, pauseMs)
   }

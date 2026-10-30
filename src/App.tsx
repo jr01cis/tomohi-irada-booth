@@ -1,18 +1,21 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import PrismSweepTransition from '@/components/smoothui/prism-sweep-transition'
+import { demoMentorsFor } from '@/components/booth/Mentors'
 import { recommend } from '@/data/courses'
 import { CATEGORIES, SKILL_LABELS, type Category } from '@/data/questions'
 import { analyze, type Answer, type RoundQuestion } from '@/lib/engine'
 import { deviceId, enqueue, newId, startAutoFlush, type Submission } from '@/lib/queue'
 import { LITE, type LeadData, type Screen, type Session } from '@/lib/session'
+import { sfx } from '@/lib/sound'
 import { useIdle } from '@/lib/useIdle'
-import { PRIZE_HEADLINE, VALID_UNTIL, makeCode, type Prize } from '@/lib/voucher'
+import { PRIZE_HEADLINE, VALID_UNTIL, challengePrize, makeCode, type WheelPrize } from '@/lib/voucher'
 import { AdminPanel } from '@/screens/AdminPanel'
 import { Attract } from '@/screens/Attract'
 import { CategoryScreen } from '@/screens/CategoryScreen'
 import { FormScreen } from '@/screens/FormScreen'
 import { QuizScreen } from '@/screens/QuizScreen'
 import { ResultScreen } from '@/screens/ResultScreen'
+import { RewardScreen } from '@/screens/RewardScreen'
 import { ScoreScreen } from '@/screens/ScoreScreen'
 import { VoucherScreen } from '@/screens/VoucherScreen'
 import { WheelScreen } from '@/screens/WheelScreen'
@@ -35,14 +38,17 @@ function toSubmission(s: Session): Submission {
     validUntil: s.code ? VALID_UNTIL : undefined,
   }
   if (s.mode === 'challenge' && s.analysis) {
+    const firstDemo = s.courses?.find((p) => demoMentorsFor(p.course.name).length > 0)
     base.category = CATEGORIES.find((c) => c.id === s.category)?.label
     base.score = s.analysis.score
     base.total = s.analysis.total
     base.pct = s.analysis.pct
+    base.missed = s.analysis.missed
     base.weak = s.analysis.weak.map((w) => SKILL_LABELS[w.skill] ?? w.skill)
     base.strong = s.analysis.strong.map((w) => SKILL_LABELS[w.skill] ?? w.skill)
     base.recommended = s.courses?.map((p) => p.course.name)
-    base.answers = s.answers?.map((a) => ({ qid: a.qid, skill: a.skill, correct: a.correct, ms: a.ms }))
+    base.mentors = firstDemo ? demoMentorsFor(firstDemo.course.name).map((m) => m.name) : []
+    base.answers = s.answers?.map((a) => ({ qid: a.qid, skill: a.skill, correct: a.correct, missed: a.chosen === null, ms: a.ms }))
   }
   return base
 }
@@ -51,8 +57,24 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('attract')
   const [session, setSession] = useState<Session>({})
   const [admin, setAdmin] = useState(false)
+  const firstScreen = useRef(true)
 
   useEffect(() => startAutoFlush(), [])
+
+  /* iOS only lets audio start inside a gesture, and suspends it again after a while */
+  useEffect(() => {
+    const unlock = () => sfx.unlock()
+    window.addEventListener('pointerdown', unlock, { capture: true, passive: true })
+    return () => window.removeEventListener('pointerdown', unlock, { capture: true })
+  }, [])
+
+  useEffect(() => {
+    if (firstScreen.current) {
+      firstScreen.current = false
+      return
+    }
+    sfx.play('whoosh')
+  }, [screen])
 
   const reset = useCallback(() => {
     setSession({})
@@ -60,7 +82,7 @@ export default function App() {
   }, [])
   useIdle(IDLE_MS, reset, screen !== 'attract' && screen !== 'quiz')
 
-  const onPrize = (prize: Prize) => {
+  const onPrize = (prize: WheelPrize) => {
     setSession({ mode: 'wheel', prize, code: makeCode(prize) })
     setScreen('form')
   }
@@ -72,15 +94,8 @@ export default function App() {
 
   const onQuizFinish = useCallback((round: RoundQuestion[], answers: Answer[], elapsedMs: number) => {
     const analysis = analyze(answers)
-    setSession((s) => ({
-      ...s,
-      round,
-      answers,
-      elapsedMs,
-      analysis,
-      prize: analysis.freeSession ? 'SESSION' : undefined,
-      code: analysis.freeSession ? makeCode('SESSION') : undefined,
-    }))
+    const prize = challengePrize(analysis.score, analysis.total)
+    setSession((s) => ({ ...s, round, answers, elapsedMs, analysis, prize, code: makeCode(prize) }))
     setScreen('score')
   }, [])
 
@@ -120,7 +135,7 @@ export default function App() {
       content = <QuizScreen key={session.category} category={session.category!} onFinish={onQuizFinish} />
       break
     case 'score':
-      content = <ScoreScreen analysis={session.analysis!} elapsedMs={session.elapsedMs ?? 0} onContinue={() => setScreen('form')} />
+      content = <ScoreScreen analysis={session.analysis!} prize={session.prize!} elapsedMs={session.elapsedMs ?? 0} onContinue={() => setScreen('form')} />
       break
     case 'form':
       content =
@@ -134,14 +149,17 @@ export default function App() {
         ) : (
           <FormScreen
             title="Unlock your analysis"
-            subtitle="Your skill map, where to improve and the course that fixes it. Sent to your WhatsApp too."
+            subtitle="Your skill map, where to improve, the course that fixes it and your reward. Sent to your WhatsApp too."
             cta="Show my analysis"
             onSubmit={onLead}
           />
         )
       break
     case 'result':
-      content = <ResultScreen session={session} onDone={reset} />
+      content = <ResultScreen session={session} onClaim={() => setScreen('reward')} />
+      break
+    case 'reward':
+      content = <RewardScreen session={session} onDone={reset} />
       break
     case 'voucher':
       content = <VoucherScreen session={session} onDone={reset} />

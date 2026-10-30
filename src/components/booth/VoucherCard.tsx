@@ -1,22 +1,24 @@
 import confetti from 'canvas-confetti'
 import { useEffect } from 'react'
 import HolographicFoil from '@/components/smoothui/holographic-foil'
+import { sfx } from '@/lib/sound'
 import { cn } from '@/lib/utils'
-import { PRIZE_HEADLINE, VALID_UNTIL, type Prize } from '@/lib/voucher'
+import { PRIZE_HEADLINE, VALID_UNTIL, isBigPrize, type Prize } from '@/lib/voucher'
 
 interface Props {
   prize: Prize
   code: string
   name: string
   celebrate?: boolean
-  /** Smaller card for the result screen's right column. */
+  /** Smaller card for a side column. */
   compact?: boolean
 }
 
 export function VoucherCard({ prize, code, name, celebrate = true, compact = false }: Props) {
+  const big = isBigPrize(prize)
   useEffect(() => {
     if (!celebrate) return
-    const big = prize === 'SESSION' || prize === '30'
+    sfx.play('voucher')
     confetti({
       particleCount: big ? 220 : 120,
       spread: big ? 110 : 70,
@@ -24,11 +26,14 @@ export function VoucherCard({ prize, code, name, celebrate = true, compact = fal
       origin: { y: 0.55 },
       colors: ['#2e36b8', '#fc694f', '#fcc24a', '#ffffff'],
     })
-  }, [celebrate, prize])
+  }, [celebrate, big])
+
+  const headline = PRIZE_HEADLINE[prize]
+  const long = headline.length > 24
 
   return (
     <HolographicFoil
-      pattern={prize === 'SESSION' ? 'gold' : 'prism'}
+      pattern={prize === 'SESSION' || prize === 'DEMO30' ? 'gold' : 'prism'}
       intensity={0.9}
       glare={0.55}
       tilt
@@ -42,7 +47,7 @@ export function VoucherCard({ prize, code, name, celebrate = true, compact = fal
         </div>
         <div>
           <p className="text-sm font-semibold uppercase tracking-widest text-coral">Your reward</p>
-          <p className={cn('mt-1 font-bold leading-tight tracking-tight', compact ? 'text-3xl' : 'text-4xl')}>{PRIZE_HEADLINE[prize]}</p>
+          <p className={cn('mt-1 font-bold leading-tight tracking-tight', compact ? (long ? 'text-2xl' : 'text-3xl') : long ? 'text-[32px]' : 'text-4xl')}>{headline}</p>
           <p className="mt-1 text-base text-white/70">For {name}</p>
         </div>
         <div className="flex items-end justify-between pb-7">

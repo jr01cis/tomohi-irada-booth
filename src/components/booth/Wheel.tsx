@@ -1,8 +1,11 @@
-import { animate, motion, useMotionValue } from 'motion/react'
-import { useState } from 'react'
+import { animate, motion, useMotionValue, useMotionValueEvent } from 'motion/react'
+import { useRef, useState } from 'react'
 import GooeyFilter from '@/components/smoothui/gooey-filter'
+import { sfx } from '@/lib/sound'
 import { cn } from '@/lib/utils'
-import { WHEEL_SLICES, sliceIndexFor, spinOutcome, type Prize } from '@/lib/voucher'
+import { WHEEL_SLICES, sliceIndexFor, spinOutcome, type WheelPrize } from '@/lib/voucher'
+
+type Prize = WheelPrize
 
 interface Props {
   onResult: (prize: Prize) => void
@@ -82,9 +85,20 @@ export function Wheel({ onResult, size = 560 }: Props) {
   const rotate = useMotionValue(0)
   const [spinning, setSpinning] = useState(false)
   const [done, setDone] = useState(false)
+  const lastSlice = useRef(0)
+
+  /* a click each time a slice edge passes the pointer, so the wheel sounds like it slows down */
+  useMotionValueEvent(rotate, 'change', (v) => {
+    const idx = Math.floor((((v % 360) + 360) % 360) / SLICE)
+    if (idx !== lastSlice.current) {
+      lastSlice.current = idx
+      sfx.play('spinTick')
+    }
+  })
 
   const spin = () => {
     if (spinning || done) return
+    sfx.play('spinStart')
     setSpinning(true)
     const prize = spinOutcome()
     const idx = sliceIndexFor(prize)

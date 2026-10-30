@@ -1,3 +1,4 @@
+import { DEMO_MENTORS_BY_COURSE } from '@/data/mentors'
 import { CATEGORIES, SKILL_LABELS, type Category } from '@/data/questions'
 import type { Analysis } from '@/lib/engine'
 
@@ -120,7 +121,9 @@ export function recommend(cat: Category, analysis: Analysis, audience: 'me' | 't
         const points = covered.reduce((sum, s) => sum + (lost.get(s) ?? 0), 0)
         const levelFit = c.level === analysis.tier ? 1.5 : c.level === analysis.tier - 1 ? 0.5 : 0
         const teamFit = audience === 'team' && c.team ? 1 : 0
-        return { c, covered, score: points * 2 + levelFit + teamFit }
+        /* the reward is a free demo, so a course nobody demos drops down the list */
+        const demoFit = (DEMO_MENTORS_BY_COURSE[c.name]?.length ?? 0) > 0 ? 1 : -3
+        return { c, covered, score: points * 2 + levelFit + teamFit + demoFit }
       })
       .filter((x) => x.covered.length > 0)
       .sort((a, b) => b.score - a.score)

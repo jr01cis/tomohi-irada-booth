@@ -25,7 +25,11 @@ export interface Submission {
   weak?: string[]
   strong?: string[]
   recommended?: string[]
-  answers?: { qid: string; skill: string; correct: boolean; ms: number }[]
+  /** questions the bell cut off */
+  missed?: number
+  /** demo mentors offered for the first recommended course */
+  mentors?: string[]
+  answers?: { qid: string; skill: string; correct: boolean; missed: boolean; ms: number }[]
   attempts?: number
 }
 

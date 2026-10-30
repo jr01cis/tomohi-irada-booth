@@ -7,6 +7,7 @@ import type { Pick } from '@/data/courses'
 import { CATEGORIES, SKILL_LABELS, type Category } from '@/data/questions'
 import type { Analysis as AnalysisData } from '@/lib/engine'
 import { cn } from '@/lib/utils'
+import { MentorStack } from './Mentors'
 
 interface Props {
   name: string
@@ -34,29 +35,39 @@ const INDUSTRY_LINE: Record<string, string> = {
 const label = (s: string) => SKILL_LABELS[s] ?? s
 const list = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`)
 
-/** Reasoning trace, streamed verdict and the skill map. Course picks live in `CoursePicks` so screens can place them. */
+/** Reasoning trace, streamed verdict and the skill map. Unanswered questions count as missed, never as wrong. */
 export function Analysis({ name, category, industry, analysis, picks, elapsedMs, onDone }: Props) {
   const cat = CATEGORIES.find((c) => c.id === category)!
   const first = name.split(' ')[0]
   const weak = analysis.weak.map((s) => label(s.skill))
   const strong = analysis.strong.map((s) => label(s.skill))
+  const wrongAi = analysis.aiAsked - analysis.aiCorrect
 
   const steps = useMemo(
     () => [
-      `Reading ${analysis.total} answers across ${analysis.bySkill.length} skills, pro questions weigh triple`,
-      `Average answer time ${(analysis.avgMs / 1000).toFixed(1)} s, round done in ${Math.round(elapsedMs / 1000)} s`,
+      `Reading ${analysis.answered} answers across ${analysis.bySkill.length} skills, pro questions weigh triple`,
+      analysis.missed
+        ? `${analysis.missed} question${analysis.missed > 1 ? 's' : ''} not reached before the bell: left out of the assessment`
+        : `All ${analysis.total} questions answered in ${Math.round(elapsedMs / 1000)} s`,
       strong.length ? `Strong signal on ${list(strong)}` : 'No skill came through clean',
       weak.length ? `Most points lost on ${list(weak)}` : 'No points lost on the topic questions',
       `Matching gaps against the Tomohi catalog for ${cat.label}`,
-      `Shortlisting ${picks.length} courses`,
+      `Shortlisting ${picks.length} courses with a free demo mentor`,
     ],
     [analysis, strong, weak, picks.length, elapsedMs, cat.label],
   )
 
   const text = useMemo(() => {
-    const tier =
-      analysis.pct >= 90 ? 'top tier' : analysis.pct >= 70 ? 'solid' : analysis.pct >= 40 ? 'a good base' : 'plenty of room, which is the fun part'
-    const parts = [`${first}, ${analysis.score} out of ${analysis.total} in ${cat.label}. That is ${analysis.pct}%, ${tier}.`]
+    const acc = analysis.accuracy
+    const tier = acc >= 90 ? 'top tier' : acc >= 70 ? 'solid' : acc >= 40 ? 'a good base' : 'plenty of room, which is the fun part'
+    const parts = [`${first}, ${analysis.score} out of ${analysis.total} in ${cat.label}.`]
+    if (analysis.missed) {
+      parts.push(
+        `The bell cut ${analysis.missed} question${analysis.missed > 1 ? 's' : ''} off, so we only read what you answered: ${analysis.score} of ${analysis.answered} right, ${tier}.`,
+      )
+    } else {
+      parts.push(`That is ${acc}%, ${tier}.`)
+    }
     if (strong.length) parts.push(`You are sharp on ${list(strong)}.`)
     if (weak.length) {
       parts.push(`The points went on ${list(weak)}.`)
@@ -66,14 +77,14 @@ export function Analysis({ name, category, industry, analysis, picks, elapsedMs,
     }
     if (analysis.aiAsked) {
       parts.push(
-        analysis.aiCorrect === analysis.aiAsked
-          ? 'You also got every AI question, which puts you ahead of most of the room.'
-          : `You missed ${analysis.aiAsked - analysis.aiCorrect} of ${analysis.aiAsked} AI questions. Each one was something AI can already do for you today.`,
+        wrongAi === 0
+          ? 'You also got every AI question you reached, which puts you ahead of most of the room.'
+          : `${wrongAi} of the AI questions went the wrong way. Each one was something AI can already do for you today.`,
       )
     }
     if (picks[0]) parts.push(`Start with ${picks[0].course.name}: ${picks[0].course.blurb.toLowerCase()}.`)
     return parts.join(' ')
-  }, [analysis, cat.label, picks, first, strong, weak, industry])
+  }, [analysis, cat.label, picks, first, strong, weak, industry, wrongAi])
 
   const words = useMemo(() => text.split(' '), [text])
   const [shownSteps, setShownSteps] = useState(0)
@@ -118,7 +129,7 @@ export function Analysis({ name, category, industry, analysis, picks, elapsedMs,
 
       {finished && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl bg-white p-5">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-body">Skill map, points kept</p>
+          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-body">Skill map, answered questions</p>
           <ul className="grid grid-cols-2 gap-x-6 gap-y-3">
             {analysis.bySkill.map((s, i) => {
               const kept = s.max ? Math.round(((s.max - s.lost) / s.max) * 100) : 0
@@ -142,6 +153,9 @@ export function Analysis({ name, category, industry, analysis, picks, elapsedMs,
               )
             })}
           </ul>
+          {analysis.notReached.length > 0 && (
+            <p className="mt-3 text-sm text-body">Not reached in time: {list(analysis.notReached.map(label))}</p>
+          )}
         </motion.div>
       )}
     </div>
@@ -168,6 +182,7 @@ export function CoursePicks({ picks }: { picks: Pick[] }) {
           <p className={cn('mt-1 text-sm', i === 0 ? 'text-white/70' : 'text-body')}>
             {p.course.blurb}. {p.course.sessions} sessions with a mentor.
           </p>
+          <MentorStack courseName={p.course.name} onDark={i === 0} />
         </motion.div>
       ))}
     </div>

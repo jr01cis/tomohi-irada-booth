@@ -17,14 +17,14 @@ const R = 100
 
 const FILL: Record<Prize, string> = {
   '10': '#2e36b8',
-  '20': '#3887f5',
-  '30': '#fc694f',
+  '15': '#3887f5',
+  '20': '#fc694f',
   SESSION: '#fcc24a',
 }
 const TEXT: Record<Prize, string> = {
   '10': '#ffffff',
+  '15': '#ffffff',
   '20': '#ffffff',
-  '30': '#ffffff',
   SESSION: '#0a2952',
 }
 

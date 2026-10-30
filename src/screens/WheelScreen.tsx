@@ -12,7 +12,7 @@ interface Props {
   onBack: () => void
 }
 
-const DOT: Record<WheelPrize, string> = { '10': 'bg-brand', '20': 'bg-[#3887f5]', '30': 'bg-coral', SESSION: 'bg-[#fcc24a]' }
+const DOT: Record<WheelPrize, string> = { '10': 'bg-brand', '15': 'bg-[#3887f5]', '20': 'bg-coral', SESSION: 'bg-[#fcc24a]' }
 
 export function WheelScreen({ onPrize, onBack }: Props) {
   const [prize, setPrize] = useState<WheelPrize | null>(null)

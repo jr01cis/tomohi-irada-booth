@@ -9,7 +9,7 @@ import { keepFullscreen, useFullscreen } from '@/lib/fullscreen'
 import { LITE } from '@/lib/session'
 import { sfx } from '@/lib/sound'
 
-const PRIZES = ['10% off a full course', '20% off a full course', '30% off a full course', 'a free session', 'a free demo']
+const PRIZES = ['10% off a full course', '15% off a full course', '20% off a full course', 'a free session', 'a free demo']
 
 function Controls() {
   const fs = useFullscreen()
@@ -101,7 +101,7 @@ export function Attract({ onWheel, onChallenge, onSecret }: Props) {
               <span className="w-fit rounded-full bg-white/20 px-3 py-1 text-sm font-bold uppercase tracking-widest">20 seconds</span>
               <span>
                 <span className="block text-5xl font-bold leading-tight">Spin the wheel</span>
-                <span className="mt-3 block max-w-[300px] text-lg text-white/90">10%, 20% or 30% off a full course, or a free session.</span>
+                <span className="mt-3 block max-w-[300px] text-lg text-white/90">10%, 15% or 20% off a full course, or a free session.</span>
               </span>
             </div>
             <motion.svg
@@ -144,7 +144,7 @@ export function Attract({ onWheel, onChallenge, onSecret }: Props) {
               <span>
                 <span className="block text-5xl font-bold leading-tight">Take the challenge</span>
                 <span className="mt-3 block max-w-[380px] text-lg text-white/90">
-                  10 questions in your field, 3 of them about what AI can do today. Everyone gets a free demo, and up to 30% off for a perfect round.
+                  10 questions in your field, 3 of them about what AI can do today. Everyone gets a free demo, and up to 20% off for a perfect round.
                 </span>
               </span>
             </div>

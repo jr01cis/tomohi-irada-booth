@@ -1,6 +1,9 @@
-/** Wheel prizes are 10 / 20 / 30 / SESSION. Challenge rewards are a free demo, plus a discount for 8, 9 or 10 out of 10. */
-export type Prize = '10' | '20' | '30' | 'SESSION' | 'DEMO' | 'DEMO10' | 'DEMO20' | 'DEMO30'
-export type WheelPrize = '10' | '20' | '30' | 'SESSION'
+/**
+ * Rewards match marketing's printed voucher cards (2026-10-30): 10%, 15%, 20% off a full course, and 1 free session.
+ * Wheel prizes are 10 / 15 / 20 / SESSION. Challenge rewards are a free demo, plus a discount for 8, 9 or 10 out of 10.
+ */
+export type Prize = '10' | '15' | '20' | 'SESSION' | 'DEMO' | 'DEMO10' | 'DEMO15' | 'DEMO20'
+export type WheelPrize = '10' | '15' | '20' | 'SESSION'
 
 export const VALID_UNTIL = '14 Nov 2026'
 
@@ -13,43 +16,59 @@ export interface Slice {
 /** Weighted outcome. Weights are the real odds, independent of how many visual slices show each prize. */
 export const OUTCOMES: Slice[] = [
   { prize: '10', label: '10% off a full course', weight: 48 },
-  { prize: '20', label: '20% off a full course', weight: 30 },
-  { prize: '30', label: '30% off a full course', weight: 12 },
+  { prize: '15', label: '15% off a full course', weight: 30 },
+  { prize: '20', label: '20% off a full course', weight: 12 },
   { prize: 'SESSION', label: 'A free session', weight: 10 },
 ]
 
 /** What the wheel shows, clockwise from the top. */
-export const WHEEL_SLICES: WheelPrize[] = ['10', '20', '10', '30', '10', '20', '10', 'SESSION']
+export const WHEEL_SLICES: WheelPrize[] = ['10', '15', '10', '20', '10', '15', '10', 'SESSION']
 
 export const PRIZE_HEADLINE: Record<Prize, string> = {
   '10': '10% off a full course',
+  '15': '15% off a full course',
   '20': '20% off a full course',
-  '30': '30% off a full course',
   SESSION: 'A free session, on us',
   DEMO: 'A free demo session',
   DEMO10: 'Free demo + 10% off a full course',
+  DEMO15: 'Free demo + 15% off a full course',
   DEMO20: 'Free demo + 20% off a full course',
-  DEMO30: 'Free demo + 30% off a full course',
 }
 
 /** Read after "I'd like to claim my". */
 export const PRIZE_CLAIM: Record<Prize, string> = {
   '10': '10% off a full course',
+  '15': '15% off a full course',
   '20': '20% off a full course',
-  '30': '30% off a full course',
   SESSION: 'free session',
   DEMO: 'free demo session',
   DEMO10: 'free demo + 10% off a full course',
+  DEMO15: 'free demo + 15% off a full course',
   DEMO20: 'free demo + 20% off a full course',
-  DEMO30: 'free demo + 30% off a full course',
 }
 
-export const isBigPrize = (p: Prize) => p === '30' || p === 'SESSION' || p === 'DEMO20' || p === 'DEMO30'
+/** Marketing's card artwork for each prize, in public/vouchers/. */
+export type CardArt = 'session' | '10' | '15' | '20'
+export const PRIZE_CARD: Record<Prize, CardArt> = {
+  '10': '10',
+  '15': '15',
+  '20': '20',
+  SESSION: 'session',
+  DEMO: 'session',
+  DEMO10: '10',
+  DEMO15: '15',
+  DEMO20: '20',
+}
 
-/** Everyone who plays gets a free demo. 8/10 adds 10%, 9/10 adds 20%, 10/10 adds 30%. */
+/** The challenge's demo rides along with a discount card. */
+export const includesDemo = (p: Prize) => p === 'DEMO10' || p === 'DEMO15' || p === 'DEMO20'
+
+export const isBigPrize = (p: Prize) => p === '20' || p === 'SESSION' || p === 'DEMO15' || p === 'DEMO20'
+
+/** Everyone who plays gets a free demo. 8/10 adds 10%, 9/10 adds 15%, 10/10 adds 20%. */
 export function challengePrize(score: number, total: number): Prize {
-  if (score >= total) return 'DEMO30'
-  if (score >= total - 1) return 'DEMO20'
+  if (score >= total) return 'DEMO20'
+  if (score >= total - 1) return 'DEMO15'
   if (score >= total - 2) return 'DEMO10'
   return 'DEMO'
 }
@@ -72,7 +91,7 @@ export function sliceIndexFor(prize: WheelPrize, rng: () => number = Math.random
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
-const CODE_TOKEN: Record<Prize, string> = { '10': '10', '20': '20', '30': '30', SESSION: 'SESS', DEMO: 'DEMO', DEMO10: 'D10', DEMO20: 'D20', DEMO30: 'D30' }
+const CODE_TOKEN: Record<Prize, string> = { '10': '10', '15': '15', '20': '20', SESSION: 'SESS', DEMO: 'DEMO', DEMO10: 'D10', DEMO15: 'D15', DEMO20: 'D20' }
 
 export function makeCode(prize: Prize, rng: () => number = Math.random): string {
   let tail = ''

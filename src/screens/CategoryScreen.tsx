@@ -23,7 +23,7 @@ export function CategoryScreen({ onPick, onBack }: Props) {
           <h2 className="text-6xl font-bold tracking-tight">Pick your field</h2>
           <p className="mt-2 text-xl text-white/70">10 questions in 60 seconds. Three of them are about what AI can do in your field today.</p>
         </div>
-        <p className="max-w-[380px] shrink-0 text-right text-lg text-white/60">Everyone gets a free demo. 8/10 adds 10% off, 9/10 20%, 10/10 30%.</p>
+        <p className="max-w-[380px] shrink-0 text-right text-lg text-white/60">Everyone gets a free demo. 8/10 adds 10% off, 9/10 15%, 10/10 20%.</p>
       </div>
 
       <div className="mt-7 grid flex-1 grid-cols-4 grid-rows-2 gap-4">

@@ -162,7 +162,7 @@ export function Analysis({ name, category, industry, analysis, picks, elapsedMs,
   )
 }
 
-export function CoursePicks({ picks }: { picks: Pick[] }) {
+export function CoursePicks({ picks, onOpenMentors }: { picks: Pick[]; onOpenMentors?: (courseName: string) => void }) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm font-semibold uppercase tracking-widest text-coral">Recommended for you</p>
@@ -182,7 +182,7 @@ export function CoursePicks({ picks }: { picks: Pick[] }) {
           <p className={cn('mt-1 text-sm', i === 0 ? 'text-white/70' : 'text-body')}>
             {p.course.blurb}. {p.course.sessions} sessions with a mentor.
           </p>
-          <MentorStack courseName={p.course.name} onDark={i === 0} />
+          <MentorStack courseName={p.course.name} onDark={i === 0} onOpen={() => onOpenMentors?.(p.course.name)} />
         </motion.div>
       ))}
     </div>

@@ -20,6 +20,7 @@ export type Sfx =
   | 'reveal'
   | 'key'
   | 'yeah'
+  | 'confetti'
   | 'voucher'
   | 'blip'
 
@@ -51,7 +52,6 @@ export function setMuted(value: boolean) {
   } catch {
     /* per-device preference only */
   }
-  if (value) window.speechSynthesis?.cancel()
 }
 
 /** Call from any user gesture. iOS only starts audio inside one. */
@@ -170,27 +170,81 @@ function fanfare(big: boolean) {
   }
 }
 
-function cheer(gain: number) {
-  for (let i = 0; i < 6; i++) {
-    noise(1.4 + Math.random() * 0.5, { freq: 700 + Math.random() * 1600, q: 0.7, gain: gain * (0.6 + Math.random() * 0.4), at: 0.25 + i * 0.05, attack: 0.25 })
+/**
+ * A crowd shouting "yeah": each voice is a buzzy glottal source through formant filters that glide
+ * from the "y" (F1 300, F2 2300) to the open "eah" (F1 750, F2 1650), with its own pitch, timing,
+ * vibrato and place in the stereo field. Breathy noise underneath fills the room.
+ */
+function crowdYeah(level: number, voices = 22) {
+  const c = ctx!
+  const t0 = c.currentTime + 0.04
+  for (let i = 0; i < voices; i++) {
+    const female = Math.random() < 0.5
+    const f0 = (female ? 215 : 125) * (0.85 + Math.random() * 0.3)
+    const fs = female ? 1.17 : 1
+    const at = t0 + Math.random() * 0.22
+    const dur = 0.7 + Math.random() * 0.45
+
+    const src = c.createOscillator()
+    src.type = 'sawtooth'
+    src.frequency.setValueAtTime(f0 * 0.92, at)
+    src.frequency.linearRampToValueAtTime(f0 * 1.28, at + 0.13)
+    src.frequency.linearRampToValueAtTime(f0 * 1.12, at + dur * 0.6)
+    src.frequency.linearRampToValueAtTime(f0 * 0.82, at + dur)
+    const vib = c.createOscillator()
+    vib.frequency.value = 5 + Math.random() * 2.5
+    const vibDepth = c.createGain()
+    vibDepth.gain.value = f0 * 0.035
+    vib.connect(vibDepth).connect(src.frequency)
+
+    const env = c.createGain()
+    const peak = (level * 0.05) * (0.6 + Math.random() * 0.4)
+    env.gain.setValueAtTime(0.0001, at)
+    env.gain.exponentialRampToValueAtTime(peak, at + 0.07)
+    env.gain.setValueAtTime(peak, at + dur * 0.55)
+    env.gain.exponentialRampToValueAtTime(0.0001, at + dur)
+
+    const formants: [number, number, number, number, number][] = [
+      [300, 600, 760, 6, 1],
+      [2300, 1880, 1650, 8, 0.55],
+      [2900, 2700, 2600, 10, 0.22],
+    ]
+    for (const [start, mid, end, q, g] of formants) {
+      const f = c.createBiquadFilter()
+      f.type = 'bandpass'
+      f.Q.value = q
+      f.frequency.setValueAtTime(start * fs, at)
+      f.frequency.linearRampToValueAtTime(mid * fs, at + 0.14)
+      f.frequency.linearRampToValueAtTime(end * fs, at + dur * 0.7)
+      const fg = c.createGain()
+      fg.gain.value = g
+      src.connect(f).connect(fg).connect(env)
+    }
+
+    const pan = c.createStereoPanner ? c.createStereoPanner() : null
+    if (pan) {
+      pan.pan.value = Math.random() * 1.6 - 0.8
+      env.connect(pan).connect(master!)
+    } else {
+      env.connect(master!)
+    }
+    src.start(at)
+    vib.start(at)
+    src.stop(at + dur + 0.05)
+    vib.stop(at + dur + 0.05)
   }
+  noise(1.5, { freq: 1300, q: 0.5, gain: level * 0.05, at: 0.05, attack: 0.2 })
+  tone(1900, 0.45, { gain: level * 0.03, at: 0.35, to: 2700 })
 }
 
-function say(text: string) {
-  const s = window.speechSynthesis
-  if (!s) return
-  try {
-    s.cancel()
-    const u = new SpeechSynthesisUtterance(text)
-    u.lang = 'en-US'
-    u.pitch = 1.35
-    u.rate = 1.05
-    u.volume = 1
-    const voice = s.getVoices().find((v) => /en[-_]US/i.test(v.lang) && /Samantha|Ava|Allison|Google US/i.test(v.name))
-    if (voice) u.voice = voice
-    s.speak(u)
-  } catch {
-    /* no speech engine */
+/** A party popper: a bang, then paper crinkling as the confetti lands. */
+function confettiPop(level = 1) {
+  noise(0.07, { freq: 1800, q: 0.4, gain: 0.55 * level, filter: 'lowpass', attack: 0.001 })
+  tone(160, 0.1, { gain: 0.35 * level, to: 55, attack: 0.001 })
+  noise(0.9, { freq: 6000, q: 0.5, gain: 0.025 * level, filter: 'highpass', at: 0.05, attack: 0.05 })
+  for (let i = 0; i < 45; i++) {
+    const at = 0.06 + Math.pow(Math.random(), 1.8) * 1.1
+    noise(0.006 + Math.random() * 0.01, { freq: 3500 + Math.random() * 4000, q: 1.2, gain: (0.04 + Math.random() * 0.12) * level, filter: 'bandpass', at, attack: 0.001 })
   }
 }
 
@@ -207,7 +261,7 @@ const SYNTH: Record<Sfx, () => void> = {
   prize: () => fanfare(false),
   bigPrize: () => {
     fanfare(true)
-    cheer(0.06)
+    crowdYeah(0.6, 14)
   },
   tick: () => tone(1250, 0.03, { gain: 0.05, type: 'triangle' }),
   tickHot: () => tone(1600, 0.05, { gain: 0.12, type: 'triangle' }),
@@ -226,11 +280,8 @@ const SYNTH: Record<Sfx, () => void> = {
   },
   reveal: () => [1046.5, 1318.5, 1568, 2093].forEach((f, i) => bell(f, 0.35, 0.07, i * 0.07)),
   voucher: () => [1568, 2093, 2349, 2637, 3136].forEach((f, i) => bell(f, 0.4, 0.05, i * 0.05)),
-  yeah: () => {
-    fanfare(true)
-    cheer(0.07)
-    setTimeout(() => !muted && say('Yeah!'), 380)
-  },
+  yeah: () => crowdYeah(1),
+  confetti: () => confettiPop(),
 }
 
 export function play(name: Sfx) {

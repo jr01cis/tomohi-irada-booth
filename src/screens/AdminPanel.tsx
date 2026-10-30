@@ -1,6 +1,21 @@
 import { useEffect, useState } from 'react'
 import { BigButton } from '@/components/booth/BigButton'
 import { exportAll, flush, pending, sentLog } from '@/lib/queue'
+import { sfx, type Sfx } from '@/lib/sound'
+
+const SOUNDS: [Sfx, string][] = [
+  ['yeah', 'Crowd yeah'],
+  ['confetti', 'Confetti'],
+  ['bigPrize', 'Big prize'],
+  ['prize', 'Prize'],
+  ['spinStart', 'Spin'],
+  ['correct', 'Right'],
+  ['wrong', 'Wrong'],
+  ['tickHot', 'Timer'],
+  ['beep', 'Last 3 s'],
+  ['timeUp', 'Time up'],
+  ['reveal', 'AI reveal'],
+]
 
 interface Props {
   onClose: () => void
@@ -69,6 +84,16 @@ export function AdminPanel({ onClose }: Props) {
         <BigButton variant="ghost" onClick={() => location.reload()}>
           Reload app
         </BigButton>
+      </div>
+      <div className="flex flex-col gap-3">
+        <p className="text-sm font-semibold uppercase tracking-widest text-white/50">Sound check</p>
+        <div className="flex flex-wrap gap-3">
+          {SOUNDS.map(([name, label]) => (
+            <BigButton key={name} size="md" variant="ghost" onClick={() => sfx.play(name)}>
+              {label}
+            </BigButton>
+          ))}
+        </div>
       </div>
       {msg && <p className="text-lg text-white/80">{msg}</p>}
       {show && <textarea readOnly className="h-64 w-full rounded-xl bg-black/40 p-3 font-mono text-xs text-white" value={exportAll()} />}

@@ -19,17 +19,16 @@ export function ScoreScreen({ analysis, prize, elapsedMs, onContinue }: Props) {
   const big = isBigPrize(prize)
   useEffect(() => {
     const t1 = setTimeout(() => sfx.play('yeah'), 250)
-    const t2 = setTimeout(
-      () =>
-        confetti({
+    const t2 = setTimeout(() => {
+      sfx.play('confetti')
+      confetti({
           particleCount: big ? 240 : 120,
           spread: big ? 110 : 80,
           startVelocity: 50,
           origin: { y: 0.5 },
           colors: ['#2e36b8', '#fc694f', '#fcc24a', '#ffffff'],
-        }),
-      1300,
-    )
+      })
+    }, 1300)
     return () => {
       clearTimeout(t1)
       clearTimeout(t2)

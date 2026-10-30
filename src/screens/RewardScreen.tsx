@@ -1,7 +1,8 @@
-import { motion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
+import { useState } from 'react'
 import { BigButton } from '@/components/booth/BigButton'
 import { Logo } from '@/components/booth/Logo'
-import { MentorCards, demoMentorsFor } from '@/components/booth/Mentors'
+import { MentorBrowser, MentorCards, demoMentorsFor } from '@/components/booth/Mentors'
 import { VoucherCard } from '@/components/booth/VoucherCard'
 import { WhatsAppShare } from '@/components/booth/WhatsAppShare'
 import type { Session } from '@/lib/session'
@@ -13,12 +14,23 @@ interface Props {
 
 /** The challenge's reward: the voucher, who can give the free demo, and the WhatsApp hand-off. */
 export function RewardScreen({ session, onDone }: Props) {
+  const [browseAt, setBrowseAt] = useState<number | null>(null)
   const { prize, code, lead, courses } = session
   if (!prize || !code || !lead) return null
   const demoCourse = courses?.find((p) => demoMentorsFor(p.course.name).length > 0)?.course
 
   return (
-    <div className="flex h-full flex-col bg-brand-deep px-12 py-8 text-white">
+    <div className="relative flex h-full flex-col bg-brand-deep px-12 py-8 text-white">
+      <AnimatePresence>
+        {browseAt !== null && demoCourse && (
+          <MentorBrowser
+            courses={(courses ?? []).map((p) => p.course.name)}
+            initialCourse={demoCourse.name}
+            initialIndex={browseAt}
+            onClose={() => setBrowseAt(null)}
+          />
+        )}
+      </AnimatePresence>
       <div className="flex items-center justify-between">
         <Logo tone="light" className="h-12" />
         <BigButton size="md" variant="light" onClick={onDone}>
@@ -45,7 +57,7 @@ export function RewardScreen({ session, onDone }: Props) {
                 <p className="text-sm font-bold uppercase tracking-widest text-coral">Your free demo, with one of them</p>
                 <p className="mt-1 text-lg text-white/80">{demoCourse.name}</p>
               </div>
-              <MentorCards courseName={demoCourse.name} />
+              <MentorCards courseName={demoCourse.name} onOpen={setBrowseAt} />
             </div>
           )}
           <WhatsAppShare session={session} tone="dark" />

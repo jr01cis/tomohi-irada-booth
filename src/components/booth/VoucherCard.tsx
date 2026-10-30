@@ -18,6 +18,7 @@ export function VoucherCard({ prize, code, name, celebrate = true, compact = fal
   const big = isBigPrize(prize)
   useEffect(() => {
     if (!celebrate) return
+    sfx.play('confetti')
     sfx.play('voucher')
     confetti({
       particleCount: big ? 220 : 120,

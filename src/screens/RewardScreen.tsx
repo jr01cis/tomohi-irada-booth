@@ -45,7 +45,7 @@ export function RewardScreen({ session, onDone }: Props) {
             <p className="mt-2 text-xl text-white/70">Tilt the iPad. Then take a photo of the card, or send it to your WhatsApp.</p>
           </div>
           <motion.div initial={{ opacity: 0, y: 40, rotateX: 20 }} animate={{ opacity: 1, y: 0, rotateX: 0 }} transition={{ type: 'spring', bounce: 0.3, duration: 0.9 }}>
-            <VoucherCard prize={prize} code={code} name={lead.name} />
+            <VoucherCard prize={prize} code={code} name={lead.name} course={(demoCourse ?? courses?.[0]?.course)?.name} />
           </motion.div>
           <p className="max-w-[560px] text-base text-white/60">The code is saved under your number. The Tomohi team will reach out on WhatsApp to book your demo.</p>
         </div>

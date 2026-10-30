@@ -1,6 +1,6 @@
 /**
  * Rewards match marketing's printed voucher cards (2026-10-30): 10%, 15%, 20% off a full course, and 1 free session.
- * Wheel prizes are 10 / 15 / 20 / SESSION. Challenge rewards are a free demo, plus a discount for 8, 9 or 10 out of 10.
+ * Wheel prizes are 10 / 15 / 20 / SESSION. Challenge rewards are a free demo (marketing's quiz card), plus a discount for 8, 9 or 10 out of 10.
  */
 export type Prize = '10' | '15' | '20' | 'SESSION' | 'DEMO' | 'DEMO10' | 'DEMO15' | 'DEMO20'
 export type WheelPrize = '10' | '15' | '20' | 'SESSION'
@@ -47,21 +47,25 @@ export const PRIZE_CLAIM: Record<Prize, string> = {
   DEMO20: 'free demo + 20% off a full course',
 }
 
-/** Marketing's card artwork for each prize, in public/vouchers/. */
-export type CardArt = 'session' | '10' | '15' | '20'
+/** Marketing's card artwork for each prize, in public/vouchers/. Every challenge reward uses the quiz card (free 30 min session). */
+export type CardArt = 'session' | '10' | '15' | '20' | 'quiz'
 export const PRIZE_CARD: Record<Prize, CardArt> = {
   '10': '10',
   '15': '15',
   '20': '20',
   SESSION: 'session',
-  DEMO: 'session',
-  DEMO10: '10',
-  DEMO15: '15',
-  DEMO20: '20',
+  DEMO: 'quiz',
+  DEMO10: 'quiz',
+  DEMO15: 'quiz',
+  DEMO20: 'quiz',
 }
 
-/** The challenge's demo rides along with a discount card. */
-export const includesDemo = (p: Prize) => p === 'DEMO10' || p === 'DEMO15' || p === 'DEMO20'
+/** The discount a strong round adds on top of the quiz card's free session. */
+export const BONUS_LINE: Partial<Record<Prize, string>> = {
+  DEMO10: '+ 10% off a full course',
+  DEMO15: '+ 15% off a full course',
+  DEMO20: '+ 20% off a full course',
+}
 
 export const isBigPrize = (p: Prize) => p === '20' || p === 'SESSION' || p === 'DEMO15' || p === 'DEMO20'
 

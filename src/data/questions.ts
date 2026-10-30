@@ -1,4 +1,4 @@
-export type Category = 'marketing' | 'pm' | 'business' | 'english' | 'design'
+export type Category = 'marketing' | 'pm' | 'business' | 'english' | 'design' | 'ai' | 'career' | 'tech'
 export type QKind = 'mcq' | 'number'
 
 export interface Question {
@@ -25,6 +25,9 @@ export const CATEGORIES: { id: Category; label: string; tagline: string; emoji: 
   { id: 'business', label: 'Business', tagline: 'Finance, sales, negotiation, HR', emoji: '📈' },
   { id: 'english', label: 'Business English', tagline: 'Email, meetings, pitching', emoji: '💬' },
   { id: 'design', label: 'Design', tagline: 'Type, color, layout, UX', emoji: '🎨' },
+  { id: 'ai', label: 'AI & Automation', tagline: 'Prompts, agents, automation', emoji: '🤖' },
+  { id: 'career', label: 'Career & Interviews', tagline: 'CVs, interviews, freelancing', emoji: '🎯' },
+  { id: 'tech', label: 'Coding & Tech', tagline: 'Code, web, security, cloud', emoji: '💻' },
 ]
 
 export const SKILL_LABELS: Record<string, string> = {
@@ -53,6 +56,21 @@ export const SKILL_LABELS: Record<string, string> = {
   ux: 'UX',
   tools: 'Tools',
   ai: 'AI at work',
+  prompting: 'Prompting',
+  models: 'Models & tools',
+  automation: 'Automation',
+  agents: 'Agents',
+  mlbasics: 'How AI works',
+  cv: 'CV',
+  interview: 'Interviews',
+  branding: 'Personal brand',
+  productivity: 'Productivity',
+  freelance: 'Freelancing',
+  web: 'Web',
+  python: 'Python',
+  logic: 'Logic & data',
+  security: 'Security',
+  cloud: 'Cloud & networks',
 }
 
 const M = (
@@ -243,4 +261,103 @@ export const QUESTIONS: Question[] = [
     'Upload the photo, ask for a palette with hex codes and usage rules. Graphic Design Essentials.'),
   M('dsa5', 'design', 'ai', 2, '"Generative fill" does what?', ['Extends or replaces parts of an image with AI', 'Fills a form automatically', 'Fills a shape with a color', 'Changes the font'],
     'Extend a photo, remove a person, change the sky. Photo Editing using Photoshop.'),
+
+  // AI & Automation: warm-up
+  M('ai01', 'ai', 'models', 1, 'ChatGPT, Claude and Gemini are…', ['Large language models', 'Search engines', 'Social networks', 'Operating systems']),
+  M('ai02', 'ai', 'prompting', 1, 'A "prompt" is…', ['The instruction you give the AI', "The AI's answer", 'A paid plan', 'A type of chatbot']),
+  M('ai03', 'ai', 'automation', 1, 'n8n, Make and Zapier are tools to…', ['Connect apps and automate tasks', 'Design logos', 'Edit videos', 'Host websites']),
+  M('ai04', 'ai', 'mlbasics', 1, 'An AI "hallucination" is…', ['A confident answer that is wrong or made up', 'A slow response', 'A refused request', 'A generated image']),
+  // AI & Automation: core
+  M('ai05', 'ai', 'prompting', 2, 'Best way to get a specific format from AI?', ['Show an example of the output you want', 'Ask the same thing twice', 'Write in capital letters', 'Use as few words as possible']),
+  M('ai06', 'ai', 'models', 2, 'Which task needs an image model, not a text model?', ['A product photo from a description', 'Summarizing a contract', 'Writing an email', 'Translating a menu']),
+  M('ai07', 'ai', 'mlbasics', 2, 'AI models learn mainly from…', ['Large amounts of example data', 'Rules typed one by one by programmers', 'Live browsing only', 'Their users\' passwords']),
+  M('ai08', 'ai', 'automation', 2, 'In an automation, a "trigger" is…', ['The event that starts the workflow', 'The last step', 'An error message', 'The monthly bill']),
+  M('ai09', 'ai', 'agents', 2, 'An AI agent differs from a chatbot because it…', ['Takes actions with tools, step by step', 'Speaks with a voice', 'Is always free', 'Only answers yes or no']),
+  // AI & Automation: pro
+  M('ai10', 'ai', 'mlbasics', 3, 'Why can the same prompt give two different answers?', ['The model samples words with some randomness', 'The internet changed in between', 'It remembers other users', 'It is a bug']),
+  M('ai11', 'ai', 'prompting', 3, 'Your AI keeps inventing facts about your company. Best fix?', ['Give it your documents and tell it to answer only from them', 'Ask it to try harder', 'Use a shorter prompt', 'Switch to another language']),
+  M('ai12', 'ai', 'agents', 3, 'Before letting an agent send emails for you, you should…', ['Approve each send yourself at first', 'Share your password with it', 'Let it run alone from day one', 'Turn off its logs']),
+  M('ai13', 'ai', 'automation', 3, 'A workflow fails silently every night. What was missing?', ['An error alert', 'A faster server', 'More triggers', 'A bigger AI model']),
+  // AI & Automation: numeric
+  N('ain1', 'ai', 'automation', 'A task takes 15 min, 4 times a day. Hours saved per 5-day week if automated?', 5, 'hours'),
+  N('ain2', 'ai', 'models', 'One AI reply costs $0.002. Cost of 1,000 replies?', 2, '$'),
+  N('ain3', 'ai', 'automation', 'A workflow runs every 15 minutes. Runs per day?', 96, 'runs'),
+  N('ain4', 'ai', 'mlbasics', 'A model gets 90 of 100 test questions right. Accuracy?', 90, '%'),
+  // AI & Automation: AI reveals
+  M('aia1', 'ai', 'ai', 2, 'Can AI build a working web app from a plain-English description?', ['Yes, a working first version in minutes', 'Only a mock-up image', 'Only with a developer typing', 'No'],
+    'Describe it, get a working app, then improve it in plain English. Claude AI course.'),
+  M('aia2', 'ai', 'ai', 1, 'AI can turn a voice note into a to-do list.', ['True', 'Only in English', 'Only for notes under a minute', 'False'],
+    'Voice note in, tasks out, straight into your calendar. Agentic AI course.'),
+  M('aia3', 'ai', 'ai', 2, "Can AI answer questions using only your company's own documents?", ['Yes, and cite the page it used', 'Only with a custom-built model', 'Only for large companies', 'No'],
+    'Upload the handbook, ask anything, get answers with the page they came from. AI Mastery.'),
+  M('aia4', 'ai', 'ai', 2, 'An n8n workflow can read new emails, sort them and draft replies with AI.', ['True', 'Only for Gmail', 'Only with code', 'False'],
+    "Tomohi's own inbox runs on flows like this. n8n Workflow Automation."),
+  M('aia5', 'ai', 'ai', 3, 'Can AI agents work as a team, one researching while another writes?', ['Yes, multi-agent setups do exactly that', 'Only in research labs', 'Only one agent can run at a time', 'No'],
+    'One agent researches, one writes, one checks. Agentic AI course.'),
+
+  // Career & Interviews: warm-up
+  M('ca01', 'career', 'cv', 1, 'A CV for a job application should usually be…', ['One to two pages', 'Five pages or more', 'Half a page', 'As long as possible']),
+  M('ca02', 'career', 'interview', 1, '"Tell me about yourself" is best answered with…', ['A short story linking your experience to the job', 'Your full life story', 'Your hobbies only', 'A list of your weaknesses']),
+  M('ca03', 'career', 'branding', 1, 'Your LinkedIn headline should…', ['Say what you do and for whom', 'Show only your job title', 'Stay empty', 'List every past employer']),
+  M('ca04', 'career', 'productivity', 1, 'Time-blocking means…', ['Reserving calendar slots for specific work', 'Blocking people on social media', 'Working without breaks', 'Arriving early every day']),
+  // Career & Interviews: core
+  M('ca05', 'career', 'interview', 2, 'The STAR method stands for…', ['Situation, Task, Action, Result', 'Skills, Talent, Ambition, Results', 'Start, Try, Adapt, Repeat', 'Strategy, Team, Action, Review']),
+  M('ca06', 'career', 'cv', 2, 'An ATS is…', ['Software that screens CVs before a human sees them', 'A type of job contract', 'A cover letter template', 'A salary scale']),
+  M('ca07', 'career', 'freelance', 2, 'Your first freelance price should be based on…', ['The value to the client and market rates', 'Whatever the client offers', 'The lowest price online', 'Your old salary divided by 30']),
+  M('ca08', 'career', 'productivity', 2, 'The Eisenhower matrix sorts tasks by…', ['Urgent and important', 'Easy and hard', 'Cheap and expensive', 'Morning and evening']),
+  M('ca09', 'career', 'branding', 2, 'The LinkedIn post most likely to get you noticed:', ['A short lesson from your own work', 'Your CV as an image', 'A repost with no comment', 'A link with no text']),
+  // Career & Interviews: pro
+  M('ca10', 'career', 'interview', 3, '"What is your biggest weakness?" Best answer:', ['A real weakness and what you are doing about it', '"I am a perfectionist"', '"I have none"', '"I work too hard"']),
+  M('ca11', 'career', 'cv', 3, 'The strongest CV bullet:', ['Cut onboarding time by 30% by redesigning the process', 'Responsible for onboarding', 'Hard-working team player', 'Worked on many projects']),
+  M('ca12', 'career', 'freelance', 3, 'A client asks for work outside the agreed scope. You…', ['Quote it as a change before starting', 'Do it free to keep them happy', 'End the contract', 'Do it and bill later without warning']),
+  M('ca13', 'career', 'interview', 3, 'You are asked for your salary expectation first. Best move?', ['Give a researched range', 'Say any amount is fine', 'Name one low number', 'Refuse to answer']),
+  // Career & Interviews: numeric
+  N('can1', 'career', 'cv', 'Salary $1,200 a month. A 15% raise brings it to?', 1380, '$'),
+  N('can2', 'career', 'productivity', 'Pomodoro: 25 min work + 5 min break. Full work blocks in 2 hours?', 4, 'blocks'),
+  N('can3', 'career', 'freelance', 'You want $3,000 a month and can bill 60 hours. Hourly rate?', 50, '$'),
+  N('can4', 'career', 'interview', 'Interview at 10:00, 40 min away, you want to arrive 10 min early. Leave how many minutes before 10:00?', 50, 'min'),
+  // Career & Interviews: AI reveals
+  M('caa1', 'career', 'ai', 1, 'Can AI tailor your CV to a specific job ad in a minute?', ['Yes, and list the missing keywords', 'Only for tech jobs', 'Only in English', 'No'],
+    'Paste the CV and the ad, get a tailored version and the gaps. CV Writing and Personal Branding Crash Course.'),
+  M('caa2', 'career', 'ai', 2, 'AI can run a mock interview out loud and grade your answers.', ['True', 'Only by text', 'Only for managers', 'False'],
+    'Voice mode, tough questions, honest feedback. Practice ten times before the real one.'),
+  M('caa3', 'career', 'ai', 2, 'From your notes, AI can draft a month of LinkedIn posts in your voice.', ['True', 'Only one post at a time', 'Only with a premium account', 'False'],
+    'Your notes in, a month of posts out, in your own tone. ChatGPT AI Mastery.'),
+  M('caa4', 'career', 'ai', 2, 'Can AI find which skills are rising in job ads for your field?', ['Yes, by reading hundreds of ads at once', 'Only LinkedIn can', 'Only for large countries', 'No'],
+    'Feed it the ads, get the skills ranked by demand. Then you know what to learn next.'),
+  M('caa5', 'career', 'ai', 3, 'An AI assistant can plan your week from your goals and your calendar.', ['True', 'Only with Outlook', 'Only for executives', 'False'],
+    'Goals in, a realistic week out, time blocks included. Mastering Time Management, AI module.'),
+
+  // Coding & Tech: warm-up
+  M('te01', 'tech', 'web', 1, 'HTML is used to…', ['Structure the content of a web page', 'Style colors and fonts', 'Store passwords', 'Run the server']),
+  M('te02', 'tech', 'python', 1, 'In Python, print("Hi") does what?', ['Shows Hi on the screen', 'Sends Hi to a printer', 'Saves a file named Hi', 'Creates a variable called Hi']),
+  M('te03', 'tech', 'security', 1, 'A strong password is…', ['Long and unique for each account', 'Your birthday', 'The same everywhere so you remember it', 'Short and simple']),
+  M('te04', 'tech', 'cloud', 1, '"The cloud" means…', ['Servers you rent over the internet', 'Wi-Fi from satellites', 'A type of hard drive', 'A weather service']),
+  // Coding & Tech: core
+  M('te05', 'tech', 'web', 2, 'CSS controls…', ['How a page looks', 'What a page says', 'Where data is stored', 'Who can log in']),
+  M('te06', 'tech', 'logic', 2, 'A "bug" is…', ['An error in the code', 'A virus', 'A new feature', 'A slow connection']),
+  M('te07', 'tech', 'security', 2, 'Phishing is…', ['Tricking people into giving away their data', 'A firewall setting', 'A backup method', 'A type of network cable']),
+  M('te08', 'tech', 'python', 2, 'A list in Python is written with…', ['Square brackets [ ]', 'Curly braces { }', 'Angle brackets < >', 'Double quotes " "']),
+  M('te09', 'tech', 'cloud', 2, 'An API lets…', ['Two programs talk to each other', 'Users reset their password', 'A site load faster', 'Code run offline']),
+  // Coding & Tech: pro
+  M('te10', 'tech', 'logic', 3, 'Finding a name in a sorted list of 1 million by halving each time takes about…', ['20 steps', '1,000 steps', '500,000 steps', '1 million steps']),
+  M('te11', 'tech', 'security', 3, 'Two-factor authentication protects you mainly when…', ['Your password leaks', 'Your phone battery dies', 'The site is slow', 'You forget your username']),
+  M('te12', 'tech', 'web', 3, 'A site works on desktop but breaks on phones. What is missing?', ['Responsive design', 'A bigger server', 'More JavaScript', 'A new domain']),
+  M('te13', 'tech', 'cloud', 3, 'HTTP status 404 means…', ['Page not found', 'Server crashed', 'Access granted', 'Too many requests']),
+  // Coding & Tech: numeric
+  N('ten1', 'tech', 'logic', 'Binary 1010 in decimal?', 10),
+  N('ten2', 'tech', 'python', 'In Python, what is 7 // 2?', 3),
+  N('ten3', 'tech', 'cloud', 'Default port for HTTPS?', 443),
+  N('ten4', 'tech', 'logic', 'How many bits in a byte?', 8),
+  // Coding & Tech: AI reveals
+  M('tea1', 'tech', 'ai', 1, 'Can AI write working code from a plain-English request?', ['Yes, and explain it line by line', 'Only pseudo-code', 'Only short snippets', 'No'],
+    'Describe the function, get the code and the explanation. Claude AI course.'),
+  M('tea2', 'tech', 'ai', 2, 'Can AI find the bug in your code and explain it?', ['Yes, paste the code and the error', 'Only for Python', 'Only with paid tools', 'No'],
+    'Paste the error, get the cause and the fix. Debugging drops from hours to minutes.'),
+  M('tea3', 'tech', 'ai', 2, 'AI can turn a screenshot of a website into working HTML and CSS.', ['True', 'Only black-and-white pages', 'Only inside Figma', 'False'],
+    'Screenshot in, code out. HTML, CSS, and JavaScript, AI module.'),
+  M('tea4', 'tech', 'ai', 2, 'Can AI write the tests for your code?', ['Yes, including edge cases you missed', 'Only for Java', 'Only one test at a time', 'No'],
+    'Ask for tests, get the edge cases too. Software Testing and Debugging.'),
+  M('tea5', 'tech', 'ai', 3, 'An AI agent can build, test and fix a small app while you only review.', ['True, coding agents do this today', 'Only in research labs', 'Only for games', 'False'],
+    'Coding agents plan, write, run and fix. You review and steer. Agentic AI course.'),
 ]
